@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<array>
+    <!-- Movie -->
+    <dict>
+        <key>title</key>
+        <string>Interstellar</string>
+        <key>type</key>
+        <string>movie</string>
+        <key>imageFilename</key>
+        <string>interstellar</string>
+        <key>releaseDate</key>
+        <date>2023-09-30T00:00:00Z</date>
+    </dict>
+
+    <!-- Series -->
+    <dict>
+        <key>title</key>
+        <string>Breaking Bad</string>
+        <key>type</key>
+        <string>series</string>
+        <key>imageFilename</key>
+        <string>breaking_bad</string>
+        <key>releaseDate</key>
+        <date>2023-11-01T00:00:00Z</date>
+        <key>episodes</key>
+        <array>
+            <!-- Episode 1 -->
+            <dict>
+                <key>episodeNumber</key>
+                <integer>1</integer>
+                <key>title</key>
+                <string>Pilot</string>
+                <key>releaseDate</key>
+                <date>2023-11-01T00:00:00Z</date>
+            </dict>
+            
+            <!-- Episode 2 -->
+            <dict>
+                <key>episodeNumber</key>
+                <integer>2</integer>
+                <key>title</key>
+                <string>Cat's in the Bag...</string>
+                <key>releaseDate</key>
+                <date>2023-11-08T00:00:00Z</date>
+            </dict>
+            
+            <!-- Episode 3 -->
+            <dict>
+                <key>episodeNumber</key>
+                <integer>3</integer>
+                <key>title</key>
+                <string>...And the Bag's in the River</string>
+                <key>releaseDate</key>
+                <date>2023-11-15T00:00:00Z</date>
+            </dict>
+            
+            <!-- Episode 4 -->
+            <dict>
+                <key>episodeNumber</key>
+                <integer>4</integer>
+                <key>title</key>
+                <string>Cancer Man</string>
+                <key>releaseDate</key>
+                <date>2023-11-22T00:00:00Z</date>
+            </dict>
+            
+            <!-- Episode 5 -->
+            <dict>
+                <key>episodeNumber</key>
+                <integer>5</integer>
+                <key>title</key>
+                <string>Gray Matter</string>
+                <key>releaseDate</key>
+                <date>2023-11-29T00:00:00Z</date>
+            </dict>
+        </array>
+    </dict>
+</array>
+</plist>
