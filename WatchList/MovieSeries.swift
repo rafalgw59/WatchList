@@ -1,7 +1,7 @@
 
 import Foundation
 
-struct MovieSeries: Identifiable, Decodable {
+struct MovieSeries: Identifiable, Codable {
     var title: String
     var releaseDate: Date
     var type: String
@@ -60,6 +60,13 @@ struct Episode: Identifiable, Codable, Equatable {
         return lhs.episodeNumber == rhs.episodeNumber &&
                lhs.title == rhs.title &&
                lhs.releaseDate == rhs.releaseDate
+    }
+    
+    static func saveEpisodes(episodes: [Episode]) {
+        let encoder = PropertyListEncoder()
+        if let data = try? encoder.encode(episodes){
+            let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+        }
     }
 }
 

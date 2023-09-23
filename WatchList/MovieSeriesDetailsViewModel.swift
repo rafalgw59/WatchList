@@ -1,18 +1,17 @@
 
 import Foundation
-
+import Combine
 
 class MovieSeriesDetailsViewModel: ObservableObject {
     private var timer: Timer?
     @Published var episodes: [Episode]
     @Published var countdownText: String = ""
    
-    
     var releaseDate: Date?
+    
     var numberOfEpisodes: Int {
         return episodes.count
     }
-
     
     init(episodes: [Episode]) {
         self.episodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
@@ -23,6 +22,12 @@ class MovieSeriesDetailsViewModel: ObservableObject {
     func addEpisode(_ episode: Episode) {
         episodes.append(episode)
         episodes.sort { $0.releaseDate < $1.releaseDate }
+        saveEpisodesToPlist()
+    }
+    func editEpisode(_ episode: Episode){
+        if let index = episodes.firstIndex(where: {$0.id == episode.id}){
+            episodes[index] = episode
+        }
         saveEpisodesToPlist()
     }
 

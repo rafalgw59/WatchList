@@ -8,7 +8,10 @@ struct AddMovieSeriesView: View {
     @State private var selectedImage: UIImage? = nil
     @State private var showImagePicker = false
     @State private var showCropScreen = false
-    
+    @State private var showEpisodeFields = false
+    @State private var showAddEpisodeSheet = false
+    @State private var episodes: [Episode] = []
+    @State private var editingEpisode: Episode?
     
     
 
@@ -43,6 +46,9 @@ struct AddMovieSeriesView: View {
                                     .cornerRadius(15)
                                     .frame(height: 200)
                                 //.padding(.top, 50)
+                                    .onTapGesture {
+                                        showImagePicker = true
+                                    }
                             }
                         }else {
                             Button(action: {
@@ -76,6 +82,25 @@ struct AddMovieSeriesView: View {
                             Text("Movie").tag("movie")
                             Text("Series").tag("series")
                         }
+                        if newMovieSeries.type == "series" {
+                            Button("Add Episode") {
+                                showAddEpisodeSheet = true
+                            }
+                        }
+                        
+                        ForEach(episodes){ episode in
+                            Button(action: {
+                                editingEpisode = episode
+                                showAddEpisodeSheet = true
+                            }) {
+                                Text("Episode \(episode.episodeNumber): \(episode.title)")
+                                    .font(.headline)
+                                Text("Release Date: \(episode.releaseDate)")
+                                    .font(.subheadline)
+                            }
+                            
+                        }
+
                     }
                 }
             }
@@ -102,6 +127,10 @@ struct AddMovieSeriesView: View {
                 }
                 .disabled(!isFormValid())
             )
+        }
+        .sheet(isPresented: $showAddEpisodeSheet){
+            
+            AddEpisodeView(episodes: $episodes, isAddingEpisode: $showAddEpisodeSheet)
         }
 //        .sheet(isPresented: $showCropScreen) {
 //            // Present the ImageCropper with the selected image and predefined crop settings

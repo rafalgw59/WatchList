@@ -1,7 +1,11 @@
 
 import SwiftUI
+import Combine
 
 struct EditableEpisodeDetailsView: View {
+    //@ObservedObject var viewModel: MovieSeriesDetailsViewModel
+    
+    @Binding var episodes: [Episode]
     @Binding var episode: Episode?
     @Binding var isEditingEpisode: Bool
     
@@ -9,7 +13,8 @@ struct EditableEpisodeDetailsView: View {
     @State private var title: String
     @State private var releaseDate: Date
     
-    init(episode: Binding<Episode?>, isEditingEpisode: Binding<Bool>) {
+    init(episodes: Binding<[Episode]>, episode: Binding<Episode?>, isEditingEpisode: Binding<Bool>) {
+        self._episodes = episodes
         self._episode = episode
         self._isEditingEpisode = isEditingEpisode
         _episodeNumberText = State(initialValue: String(episode.wrappedValue?.episodeNumber ?? 0))
@@ -44,15 +49,24 @@ struct EditableEpisodeDetailsView: View {
                             updatedEpisode.episodeNumber = Int(episodeNumberText) ?? 0
                             updatedEpisode.title = title
                             updatedEpisode.releaseDate = releaseDate
+                            
+                            
                             episode = updatedEpisode
+                            viewModel.editEpisode(updatedEpisode)
+//                            episodePublisher.send(updatedEpisode)
+                            print("Episode updated and saved to plist")
+                            print(updatedEpisode.title,updatedEpisode.episodeNumber,updatedEpisode.releaseDate)
                         }
                         isEditingEpisode = false
                     }
                     .foregroundColor(.blue)
 
                     Button("Delete Episode") {
-                        episode = nil
-                        isEditingEpisode = false 
+                        if let deletedEpisode = episode {
+                            viewModel.deleteEpisode(deletedEpisode)
+                            episode = nil
+                        }
+                        isEditingEpisode = false
                     }
                     .foregroundColor(.red)
                 }
@@ -60,6 +74,65 @@ struct EditableEpisodeDetailsView: View {
             .navigationTitle("Edit Episode")
         }
     }
+//    private func saveEpisode() {
+//        let newEpisode = Episode(episodeNumber: episodeNumber, title: title, releaseDate: releaseDate)
+//        episodes.append(newEpisode)
+//        isAddingEpisode = false
+//    }
+    
+    private func editEpisode(){
+        
+    }
+    private func deleteEpisode(){
+        
+    }
+    private func saveEpisode(){
+        
+    }
+    
+    private func updateEpisodeInPlist(_ updatedEpisode: Episode) {
+        if var movieSeriesArray = loadMovieSeriesData("MovieSeriesData") {
+            // Find the movie series that contains the episode
+            if let movieSeriesIndex = movieSeriesArray.firstIndex(where: { $0.episodes?.contains { $0.id == updatedEpisode.id } ?? false }) {
+                // Find the episode in the movie series and update it
+                if let episodeIndex = movieSeriesArray[movieSeriesIndex].episodes?.firstIndex(where: { $0.id == updatedEpisode.id }) {
+                    movieSeriesArray[movieSeriesIndex].episodes?[episodeIndex] = updatedEpisode
+                    
+                    // Save the updated data back to the plist
+                    saveMovieSeriesData(movieSeriesArray)
+                }
+            }
+        }
+    }
+    private func loadMovieSeriesData(_ plistName: String) -> [MovieSeries]? {
+        if let path = Bundle.main.path(forResource: plistName, ofType: "plist"),
+           let data = FileManager.default.contents(atPath: path) {
+            do {
+                let decoder = PropertyListDecoder()
+                let movieSeries = try decoder.decode([MovieSeries].self, from: data)
+                return movieSeries
+            } catch {
+                print("Error decoding data from \(plistName).plist: \(error)")
+            }
+        }
+        return nil
+    }
+    
+    private func saveMovieSeriesData(_ movieSeries: [MovieSeries]) {
+        do {
+            let encoder = PropertyListEncoder()
+            let data = try encoder.encode(movieSeries)
+            if let path = Bundle.main.path(forResource: "MovieSeriesData", ofType: "plist") {
+                try data.write(to: URL(fileURLWithPath: path))
+            }
+        } catch {
+            print("Error encoding data: \(error)")
+        }
+    }
+
+
+    
+    
 }
 
 

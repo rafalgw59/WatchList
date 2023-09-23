@@ -39,11 +39,11 @@ struct EpisodeListView: View {
                 }
             }
         }
-        .sheet(isPresented: $isEditingSheetPresented) {
-            if let selectedEpisode = selectedEpisode {
-                EditableEpisodeDetailsView(episode: $selectedEpisode, isEditingEpisode: $isEditingEpisode)
-            }
-        }
+//        .sheet(isPresented: $isEditingSheetPresented) {
+//            if let selectedEpisode = selectedEpisode {
+//                EditableEpisodeDetailsView(episode: $selectedEpisode, isEditingEpisode: $isEditingEpisode)
+//            }
+//        }
         .navigationViewStyle(StackNavigationViewStyle())
     }
 }

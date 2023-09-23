@@ -7,26 +7,34 @@ struct MovieSeriesDetailsView: View {
     var movieSeries: MovieSeries
     @ObservedObject var viewModel: MovieSeriesDetailsViewModel
     @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel
+    @ObservedObject var episodeViewModel: EpisodeViewModel
     @State private var countdownText: String = ""
     @State private var isTimerRunning = false
     @State private var selectedEpisode: Episode?
     @State private var isEditingEpisode = false
+    @State private var isAddingEpisode = false
     @State private var selectedEpisodeForEditing: Episode?
     @State private var isEditingSheetPresented = false
+    @State private var shouldReload = false
     @State private var releaseStatus: String = ""
+    @State private var episodes: [Episode] = []
     
-    //var MovieSeries: MovieSeries
+    private var selectedEpisodePublisher = PassthroughSubject<Episode?, Never>()
     private var timer: Timer?
 
     init(movieSeries: MovieSeries) {
         self.movieSeries = movieSeries
         self.viewModel = MovieSeriesDetailsViewModel(episodes: movieSeries.episodes ?? [])
         self.countdownTimerViewModel = CountdownTimerViewModel()
-        
+        self.episodeViewModel = EpisodeViewModel(episodes: movieSeries.episodes ?? [])
         if movieSeries.type == "movie" {
             countdownTimerViewModel.startCountdownTimer(for: movieSeries.releaseDate, nextEpisodeReleaseDate: nil)
         } else if movieSeries.type == "series", let nextEpisodeReleaseDate = movieSeries.nextEpisodeReleaseDate {
             countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: nextEpisodeReleaseDate)
+        }
+        
+        if let episodes = movieSeries.episodes {
+            self._episodes = State(initialValue: episodes)
         }
     }
 
@@ -64,6 +72,7 @@ struct MovieSeriesDetailsView: View {
 
             if movieSeries.type == "series" {
                 Divider()
+                
                 Text("Episodes: \(viewModel.numberOfEpisodes)")
                     .font(.headline)
                     .padding()
@@ -78,7 +87,7 @@ struct MovieSeriesDetailsView: View {
                 }
                 
                 List {
-                    ForEach(viewModel.episodes) { episode in
+                    ForEach(viewModel.episodes, id: \.id) { episode in
                         Button(action: {
                             selectedEpisodeForEditing = episode
                             isEditingSheetPresented = true
@@ -86,7 +95,15 @@ struct MovieSeriesDetailsView: View {
                             EpisodeRowView(episode: episode, formattedDate: formattedDate)
                         }
                     }
+                    Section{
+                        Button("Add Episode"){
+                            isAddingEpisode = true
+                        }
+                        .foregroundColor(.blue)
+                    }
                 }
+                
+
 
             }
 
@@ -100,10 +117,18 @@ struct MovieSeriesDetailsView: View {
             countdownTimerViewModel.stopTimer()
         }
 
-        .sheet(item: $selectedEpisodeForEditing) { episode in
-            EditableEpisodeDetailsView(episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented)
-
+        .sheet(isPresented: $isEditingSheetPresented) {
+            
+//            EditableEpisodeDetailsView(episodes: $episodes, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented,shouldReloadParent:$shouldReload)
+            
+            //EditableEpisodeDetailsView(viewModel: viewModel, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented)
+            EditableEpisodeDetailsView(episodes:$viewModel.episodes,episode:$selectedEpisodeForEditing,isEditingEpisode:$isEditingSheetPresented)
+            
         }
+        .sheet(isPresented: $isAddingEpisode){
+            AddEpisodeView(episodes: $viewModel.episodes, isAddingEpisode: $isAddingEpisode)
+        }
+
     }
 
 

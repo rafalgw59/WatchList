@@ -33,6 +33,8 @@
 		2BC13B462ABDAF5600F90921 /* ImagePickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC13B3D2ABDAF5500F90921 /* ImagePickerView.swift */; };
 		2BC13B472ABDAF5600F90921 /* CameraView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC13B3E2ABDAF5500F90921 /* CameraView.swift */; };
 		2BC13B492ABDAF9800F90921 /* SourceTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC13B482ABDAF9800F90921 /* SourceTypeSelectionView.swift */; };
+		2BE645242ABEF36700A1D98C /* AddEpisodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE645232ABEF36700A1D98C /* AddEpisodeView.swift */; };
+		2BE645262ABF7A4500A1D98C /* EpisodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE645252ABF7A4500A1D98C /* EpisodeViewModel.swift */; };
 		61D99F7C81148DD26BD1B28F /* Pods_WatchList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 542BBCEC76DCC432CE8375B2 /* Pods_WatchList.framework */; };
 /* End PBXBuildFile section */
 
@@ -64,6 +66,8 @@
 		2BC13B3F2ABDAF5500F90921 /* ImageCropper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ImageCropper.swift; path = /Users/rafalgawlik/Apki/SwiftUI/WatchList/WatchList/ImagePicker/ImageCropper.swift; sourceTree = "<absolute>"; };
 		2BC13B402ABDAF5600F90921 /* AdaptiveStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AdaptiveStack.swift; path = /Users/rafalgawlik/Apki/SwiftUI/WatchList/WatchList/ImagePicker/AdaptiveStack.swift; sourceTree = "<absolute>"; };
 		2BC13B482ABDAF9800F90921 /* SourceTypeSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceTypeSelectionView.swift; sourceTree = "<group>"; };
+		2BE645232ABEF36700A1D98C /* AddEpisodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEpisodeView.swift; sourceTree = "<group>"; };
+		2BE645252ABF7A4500A1D98C /* EpisodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeViewModel.swift; sourceTree = "<group>"; };
 		542BBCEC76DCC432CE8375B2 /* Pods_WatchList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WatchList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0EC29C8FB80BD6124FE8BE4 /* Pods-WatchList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatchList.release.xcconfig"; path = "Target Support Files/Pods-WatchList/Pods-WatchList.release.xcconfig"; sourceTree = "<group>"; };
 		DBA32767FCC9BCDD0366AFA6 /* Pods-WatchList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatchList.debug.xcconfig"; path = "Target Support Files/Pods-WatchList/Pods-WatchList.debug.xcconfig"; sourceTree = "<group>"; };
@@ -106,6 +110,7 @@
 				2B75B9CA2AB9EAF000865A3F /* ContentView.swift */,
 				2BC13B2F2ABC8E0B00F90921 /* MovieTimerView.swift */,
 				2BC13B352ABDA5D000F90921 /* AddMovieSeriesView.swift */,
+				2BE645232ABEF36700A1D98C /* AddEpisodeView.swift */,
 				2BC13B392ABDAD5500F90921 /* ImagePicker */,
 				2BC13B272ABB6D9A00F90921 /* CountdownTimerViewModel.swift */,
 				2B75B9DC2AB9F06900865A3F /* MovieSeriesData.plist */,
@@ -119,6 +124,7 @@
 				2BC13B2D2ABC723900F90921 /* EditableEpisodeDetailsView.swift */,
 				2BC13B252ABB641D00F90921 /* EpisodeRowView.swift */,
 				2BC13B052ABB0BBE00F90921 /* MovieSeriesDetailsViewModel.swift */,
+				2BE645252ABF7A4500A1D98C /* EpisodeViewModel.swift */,
 				2B75B9CC2AB9EAF300865A3F /* Assets.xcassets */,
 				2B75B9CE2AB9EAF300865A3F /* Preview Content */,
 			);
@@ -284,9 +290,11 @@
 				2BC13B322ABD93D500F90921 /* TimerViewModel.swift in Sources */,
 				2B75B9CB2AB9EAF000865A3F /* ContentView.swift in Sources */,
 				2BC13B2C2ABC6CE600F90921 /* CountdownTimerView.swift in Sources */,
+				2BE645242ABEF36700A1D98C /* AddEpisodeView.swift in Sources */,
 				2BC13B492ABDAF9800F90921 /* SourceTypeSelectionView.swift in Sources */,
 				2BC13B2E2ABC723900F90921 /* EditableEpisodeDetailsView.swift in Sources */,
 				2BC13B452ABDAF5600F90921 /* ImageCropper.swift in Sources */,
+				2BE645262ABF7A4500A1D98C /* EpisodeViewModel.swift in Sources */,
 				2BC13B282ABB6D9A00F90921 /* CountdownTimerViewModel.swift in Sources */,
 				2B75B9C92AB9EAF000865A3F /* WatchListApp.swift in Sources */,
 				2BC13B442ABDAF5600F90921 /* CustomViewController.swift in Sources */,
