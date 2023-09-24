@@ -25,9 +25,9 @@ class MovieSeriesDetailsViewModel: ObservableObject {
         saveEpisodesToPlist()
     }
     func editEpisode(_ episode: Episode){
-        if let index = episodes.firstIndex(where: {$0.id == episode.id}){
-            episodes[index] = episode
-        }
+//        if let index = episodes.firstIndex(where: {$0.id == episode.id}){
+//            episodes[index] = episode
+//        }
         saveEpisodesToPlist()
     }
 
@@ -58,7 +58,7 @@ class MovieSeriesDetailsViewModel: ObservableObject {
         }
     }
 
-    private func saveEpisodesToPlist() {
+    func saveEpisodesToPlist() {
         let encoder = PropertyListEncoder()
         if let encodedEpisodes = try? encoder.encode(episodes) {
             if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {

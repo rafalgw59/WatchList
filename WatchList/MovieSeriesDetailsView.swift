@@ -122,7 +122,7 @@ struct MovieSeriesDetailsView: View {
 //            EditableEpisodeDetailsView(episodes: $episodes, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented,shouldReloadParent:$shouldReload)
             
             //EditableEpisodeDetailsView(viewModel: viewModel, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented)
-            EditableEpisodeDetailsView(episodes:$viewModel.episodes,episode:$selectedEpisodeForEditing,isEditingEpisode:$isEditingSheetPresented)
+            EditableEpisodeDetailsView(episodes:$viewModel.episodes,episode:$selectedEpisodeForEditing,isEditingEpisode:$isEditingSheetPresented,viewModel: viewModel)
             
         }
         .sheet(isPresented: $isAddingEpisode){

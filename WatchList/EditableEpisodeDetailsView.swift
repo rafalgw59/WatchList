@@ -3,7 +3,7 @@ import SwiftUI
 import Combine
 
 struct EditableEpisodeDetailsView: View {
-    //@ObservedObject var viewModel: MovieSeriesDetailsViewModel
+    @ObservedObject var viewModel: MovieSeriesDetailsViewModel
     
     @Binding var episodes: [Episode]
     @Binding var episode: Episode?
@@ -13,7 +13,8 @@ struct EditableEpisodeDetailsView: View {
     @State private var title: String
     @State private var releaseDate: Date
     
-    init(episodes: Binding<[Episode]>, episode: Binding<Episode?>, isEditingEpisode: Binding<Bool>) {
+    init(episodes: Binding<[Episode]>, episode: Binding<Episode?>, isEditingEpisode: Binding<Bool>, viewModel: MovieSeriesDetailsViewModel) {
+        self.viewModel = viewModel
         self._episodes = episodes
         self._episode = episode
         self._isEditingEpisode = isEditingEpisode
@@ -21,7 +22,7 @@ struct EditableEpisodeDetailsView: View {
         _title = State(initialValue: episode.wrappedValue?.title ?? "")
         _releaseDate = State(initialValue: episode.wrappedValue?.releaseDate ?? Date())
     }
-
+    
     var body: some View {
         NavigationView {
             Form {
@@ -31,42 +32,42 @@ struct EditableEpisodeDetailsView: View {
                         .onAppear {
                             episodeNumberText = String(episode?.episodeNumber ?? 0)
                         }
-
+                    
                     TextField("Title", text: $title)
                         .onAppear {
                             title = episode?.title ?? ""
                         }
-
+                    
                     DatePicker("Release Date", selection: $releaseDate, in: Date()...)
                         .onAppear {
                             releaseDate = episode?.releaseDate ?? Date()
                         }
                 }
-
+                
                 Section {
                     Button("Save Changes") {
-                        if var updatedEpisode = episode {
-                            updatedEpisode.episodeNumber = Int(episodeNumberText) ?? 0
-                            updatedEpisode.title = title
-                            updatedEpisode.releaseDate = releaseDate
-                            
-                            
-                            episode = updatedEpisode
-                            viewModel.editEpisode(updatedEpisode)
-//                            episodePublisher.send(updatedEpisode)
-                            print("Episode updated and saved to plist")
-                            print(updatedEpisode.title,updatedEpisode.episodeNumber,updatedEpisode.releaseDate)
-                        }
-                        isEditingEpisode = false
+                        //                        if var updatedEpisode = episode {
+                        //                            updatedEpisode.episodeNumber = Int(episodeNumberText) ?? 0
+                        //                            updatedEpisode.title = title
+                        //                            updatedEpisode.releaseDate = releaseDate
+                        //
+                        //
+                        //                            episode = updatedEpisode
+                        //                            viewModel.editEpisode(updatedEpisode)
+                        ////                            episodePublisher.send(updatedEpisode)
+                        //                            print("Episode updated and saved to plist")
+                        //                            print(updatedEpisode.title,updatedEpisode.episodeNumber,updatedEpisode.releaseDate)
+                        //                        }
+                        editEpisode()
                     }
                     .foregroundColor(.blue)
-
+                    
                     Button("Delete Episode") {
-                        if let deletedEpisode = episode {
-                            viewModel.deleteEpisode(deletedEpisode)
-                            episode = nil
-                        }
-                        isEditingEpisode = false
+                        //                        if let deletedEpisode = episode {
+                        //                            viewModel.deleteEpisode(deletedEpisode)
+                        //                            episode = nil
+                        //                        }
+                        //deleteEpisode()
                     }
                     .foregroundColor(.red)
                 }
@@ -74,18 +75,57 @@ struct EditableEpisodeDetailsView: View {
             .navigationTitle("Edit Episode")
         }
     }
-//    private func saveEpisode() {
-//        let newEpisode = Episode(episodeNumber: episodeNumber, title: title, releaseDate: releaseDate)
-//        episodes.append(newEpisode)
-//        isAddingEpisode = false
-//    }
+    //    private func saveEpisode() {
+    //        let newEpisode = Episode(episodeNumber: episodeNumber, title: title, releaseDate: releaseDate)
+    //        episodes.append(newEpisode)
+    //        isAddingEpisode = false
+    //    }
+    private func editEpisode() {
+        var episodeIndex = episodes.firstIndex(of: episode!)
+        var updatedEpisode = episode
+        updatedEpisode?.episodeNumber = Int(episodeNumberText) ?? 0
+        updatedEpisode?.title = title
+        updatedEpisode?.releaseDate = releaseDate
+        
+        // Update the episode at the found index
+        episodes[episodeIndex!] = updatedEpisode!
+        updateEpisodeInPlist(updatedEpisode!)
+        viewModel.saveEpisodesToPlist()
+        // Update the episode in your view model
+        //viewModel.editEpisode(updatedEpisode)
+        
+        // Dismiss the editing view
+        isEditingEpisode = false
+    }
     
-    private func editEpisode(){
-        
+    
+    
+    //    private func deleteEpisode() {
+    //        if let deletedEpisode = episode {
+    //            if let index = episodes.firstIndex(where: { $0.id == deletedEpisode.id }) {
+    //                episodes.remove(at: index)
+    //            }
+    //            // Remove the episode from the plist data
+    //            removeEpisodeFromPlist(deletedEpisode)
+    //
+    //            episode = nil
+    //            isEditingEpisode = false
+    //        }
+    //    }
+    
+    private func removeEpisodeFromPlist(_ deletedEpisode: Episode) {
+        if var movieSeriesArray = loadMovieSeriesData("MovieSeriesData") {
+            // Find the movie series that contains the episode
+            if let movieSeriesIndex = movieSeriesArray.firstIndex(where: { $0.episodes?.contains { $0.id == deletedEpisode.id } ?? false }) {
+                // Remove the episode from the movie series
+                movieSeriesArray[movieSeriesIndex].episodes?.removeAll { $0.id == deletedEpisode.id }
+                
+                // Save the updated data back to the plist
+                saveMovieSeriesData(movieSeriesArray)
+            }
+        }
     }
-    private func deleteEpisode(){
-        
-    }
+    
     private func saveEpisode(){
         
     }
@@ -129,11 +169,12 @@ struct EditableEpisodeDetailsView: View {
             print("Error encoding data: \(error)")
         }
     }
-
-
-    
-    
 }
+
+
+    
+    
+
 
 
 
