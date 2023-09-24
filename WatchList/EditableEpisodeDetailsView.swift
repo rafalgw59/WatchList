@@ -46,28 +46,12 @@ struct EditableEpisodeDetailsView: View {
                 
                 Section {
                     Button("Save Changes") {
-                        //                        if var updatedEpisode = episode {
-                        //                            updatedEpisode.episodeNumber = Int(episodeNumberText) ?? 0
-                        //                            updatedEpisode.title = title
-                        //                            updatedEpisode.releaseDate = releaseDate
-                        //
-                        //
-                        //                            episode = updatedEpisode
-                        //                            viewModel.editEpisode(updatedEpisode)
-                        ////                            episodePublisher.send(updatedEpisode)
-                        //                            print("Episode updated and saved to plist")
-                        //                            print(updatedEpisode.title,updatedEpisode.episodeNumber,updatedEpisode.releaseDate)
-                        //                        }
                         editEpisode()
                     }
                     .foregroundColor(.blue)
                     
                     Button("Delete Episode") {
-                        //                        if let deletedEpisode = episode {
-                        //                            viewModel.deleteEpisode(deletedEpisode)
-                        //                            episode = nil
-                        //                        }
-                        //deleteEpisode()
+                        deleteEpisode()
                     }
                     .foregroundColor(.red)
                 }
@@ -81,46 +65,40 @@ struct EditableEpisodeDetailsView: View {
     //        isAddingEpisode = false
     //    }
     private func editEpisode() {
-        var episodeIndex = episodes.firstIndex(of: episode!)
+        let episodeIndex = episodes.firstIndex(of: episode!)
         var updatedEpisode = episode
         updatedEpisode?.episodeNumber = Int(episodeNumberText) ?? 0
         updatedEpisode?.title = title
         updatedEpisode?.releaseDate = releaseDate
         
-        // Update the episode at the found index
+       
         episodes[episodeIndex!] = updatedEpisode!
         updateEpisodeInPlist(updatedEpisode!)
         viewModel.saveEpisodesToPlist()
-        // Update the episode in your view model
-        //viewModel.editEpisode(updatedEpisode)
-        
-        // Dismiss the editing view
+
         isEditingEpisode = false
     }
     
+
+
+    private func deleteEpisode() {
+        let episodeIndex = episodes.firstIndex(of: episode!)
+        episodes.remove(at: episodeIndex!)
+        removeEpisodeFromPlist(episode!)
+        viewModel.saveEpisodesToPlist()
+
+
+        
+        episode = nil
+        isEditingEpisode = false
     
-    
-    //    private func deleteEpisode() {
-    //        if let deletedEpisode = episode {
-    //            if let index = episodes.firstIndex(where: { $0.id == deletedEpisode.id }) {
-    //                episodes.remove(at: index)
-    //            }
-    //            // Remove the episode from the plist data
-    //            removeEpisodeFromPlist(deletedEpisode)
-    //
-    //            episode = nil
-    //            isEditingEpisode = false
-    //        }
-    //    }
+    }
     
     private func removeEpisodeFromPlist(_ deletedEpisode: Episode) {
         if var movieSeriesArray = loadMovieSeriesData("MovieSeriesData") {
-            // Find the movie series that contains the episode
             if let movieSeriesIndex = movieSeriesArray.firstIndex(where: { $0.episodes?.contains { $0.id == deletedEpisode.id } ?? false }) {
-                // Remove the episode from the movie series
                 movieSeriesArray[movieSeriesIndex].episodes?.removeAll { $0.id == deletedEpisode.id }
                 
-                // Save the updated data back to the plist
                 saveMovieSeriesData(movieSeriesArray)
             }
         }
@@ -132,13 +110,10 @@ struct EditableEpisodeDetailsView: View {
     
     private func updateEpisodeInPlist(_ updatedEpisode: Episode) {
         if var movieSeriesArray = loadMovieSeriesData("MovieSeriesData") {
-            // Find the movie series that contains the episode
             if let movieSeriesIndex = movieSeriesArray.firstIndex(where: { $0.episodes?.contains { $0.id == updatedEpisode.id } ?? false }) {
-                // Find the episode in the movie series and update it
                 if let episodeIndex = movieSeriesArray[movieSeriesIndex].episodes?.firstIndex(where: { $0.id == updatedEpisode.id }) {
                     movieSeriesArray[movieSeriesIndex].episodes?[episodeIndex] = updatedEpisode
                     
-                    // Save the updated data back to the plist
                     saveMovieSeriesData(movieSeriesArray)
                 }
             }
