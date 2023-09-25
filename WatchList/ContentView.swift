@@ -3,9 +3,9 @@ import SwiftUI
 import Mantis
 
 struct ContentView: View {
-    
+    @ObservedObject var movieSeriesData: MovieSeriesData = MovieSeriesData()
     @State private var showDetailsSheet = false
-    @State private var movieSeriesData: [MovieSeries] = []
+//    @State private var movieSeriesData: [MovieSeries] = []
     @State private var selectedMovieSeries: MovieSeries? = nil
     @State private var showAddMovieSeries = false
 //    @State private var cropperType: ImageCropperType = .normal
@@ -18,7 +18,7 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack {
-                List(movieSeriesData, id: \.title) { movieSeries in
+                List(movieSeriesData.movieSeries, id: \.title) { movieSeries in
                     MovieTimerView(movieSeries: movieSeries)
                         .onTapGesture {
                             showDetailsSheet.toggle()
@@ -39,19 +39,20 @@ struct ContentView: View {
                 }
                 .padding()
                 .sheet(isPresented: $showAddMovieSeries){
-                    AddMovieSeriesView(movieSeriesData: $movieSeriesData)
+                    AddMovieSeriesView(movieSeriesData: $movieSeriesData.movieSeries, isAddingMovieSeries: $showAddMovieSeries)
                     
                 }
             }
             .navigationBarTitle("My Movies and Series")
 
             .sheet(item: $selectedMovieSeries){ MovieSeries in
-                MovieSeriesDetailsView(movieSeries: MovieSeries)
+                MovieSeriesDetailsView(movieSeries: MovieSeries, movieSeriesData: movieSeriesData)
 
             }
+
             .onAppear {
-                if let data = loadMovieSeriesData("MovieSeriesData") {
-                    movieSeriesData = data
+                if let data = loadMovieSeriesDataFromFile("MovieSeriesData") {
+                    self.movieSeriesData.movieSeries = data
                 }
             }
         }
@@ -67,6 +68,22 @@ struct ContentView: View {
                 return movieSeries
             } catch {
                 print("Error decoding data from \(plistName).plist: \(error)")
+            }
+        }
+        return nil
+    }
+    
+    
+    private func loadMovieSeriesDataFromFile(_ plistName: String) -> [MovieSeries]? {
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
+            do {
+                let data = try Data(contentsOf: fileURL)
+                let decoder = PropertyListDecoder()
+                let movieSeriesArray = try decoder.decode([MovieSeries].self,from: data)
+                return movieSeriesArray
+            } catch {
+                print("Error loading cover image: \(error)")
             }
         }
         return nil

@@ -50,7 +50,7 @@ class MovieSeriesDetailsViewModel: ObservableObject {
 
     private func loadEpisodesFromPlist() {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let archiveURL = documentsDirectory.appendingPathComponent("episodes.plist")
+            let archiveURL = documentsDirectory.appendingPathComponent("MovieSeriesData.plist")
             if let savedEpisodesData = try? Data(contentsOf: archiveURL),
                 let savedEpisodes = try? PropertyListDecoder().decode([Episode].self, from: savedEpisodesData) {
                 self.episodes = savedEpisodes
@@ -62,7 +62,7 @@ class MovieSeriesDetailsViewModel: ObservableObject {
         let encoder = PropertyListEncoder()
         if let encodedEpisodes = try? encoder.encode(episodes) {
             if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-                let archiveURL = documentsDirectory.appendingPathComponent("episodes.plist")
+                let archiveURL = documentsDirectory.appendingPathComponent("MovieSeriesData.plist")
                 do {
                     try encodedEpisodes.write(to: archiveURL)
                 } catch {

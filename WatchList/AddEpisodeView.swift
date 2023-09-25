@@ -2,9 +2,10 @@
 import SwiftUI
 
 struct AddEpisodeView: View {
-//    @Binding var episode: Episode?
+
     @Binding var episodes: [Episode]
     @Binding var isAddingEpisode: Bool
+    @State private var id: UUID = UUID()
     @State private var title: String = ""
     @State private var episodeNumber: Int = 0
     @State private var releaseDate: Date = Date()
@@ -16,7 +17,7 @@ struct AddEpisodeView: View {
                     TextField("Episode Title", text: $title)
                     Stepper("Episode Number: \(episodeNumber)", value: $episodeNumber)
                         .keyboardType(.numberPad) // Allow only numeric input
-                    DatePicker("Release Date", selection: $releaseDate, displayedComponents: .date)
+                    DatePicker("Release Date", selection: $releaseDate)
                 }
             }
             .navigationBarItems(
@@ -29,7 +30,7 @@ struct AddEpisodeView: View {
     }
 
     private func saveEpisode() {
-        let newEpisode = Episode(episodeNumber: episodeNumber, title: title, releaseDate: releaseDate)
+        let newEpisode = Episode(episodeNumber: episodeNumber, title: title, releaseDate: releaseDate, id: id)
         episodes.append(newEpisode)
         isAddingEpisode = false
     }

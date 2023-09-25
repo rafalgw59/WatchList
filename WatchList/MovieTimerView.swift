@@ -7,7 +7,8 @@ struct MovieTimerView: View {
     @State private var remainingTime: TimeInterval = 0
     @State private var timer: Timer? = nil
     @State private var nextEpisode: Episode? = nil
-
+    @State private var coverImage: UIImage? = nil
+    
     var body: some View {
         VStack {
             GeometryReader { geometry in
@@ -19,12 +20,24 @@ struct MovieTimerView: View {
                         .cornerRadius(15)
                         .opacity(0.8)
                     // Image as the background
-                    Image(movieSeries.imageFilename)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(maxHeight: 200)
-                        .cornerRadius(15)
-                        .opacity(0.8)
+                    
+                    if !movieSeries.title.isEmpty{
+                        Image(uiImage: coverImage ?? UIImage())
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(maxHeight: 200)
+                            .cornerRadius(15)
+                            .opacity(0.8)
+                    } else {
+                        Image(systemName: "photo.on.rectangle")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .opacity(0.8)
+                            .cornerRadius(15)
+                            .frame(height: 200)
+                            .padding(.top, 50)
+                    }
+
 
 
                     VStack {
@@ -60,6 +73,7 @@ struct MovieTimerView: View {
         .listRowInsets(EdgeInsets())
         .onAppear {
             updateRemainingTime()
+            coverImage = loadCoverImage(for: movieSeries.title)
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in
                 updateRemainingTime()
             }
@@ -68,6 +82,19 @@ struct MovieTimerView: View {
             timer?.invalidate()
             timer = nil
         }
+    }
+    
+    private func loadCoverImage(for title: String) -> UIImage? {
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent("\(title).png")
+            do {
+                let imageData = try Data(contentsOf: fileURL)
+                return UIImage(data: imageData)
+            } catch {
+                print("Error loading cover image: \(error)")
+            }
+        }
+        return nil
     }
 
     private func updateRemainingTime() {

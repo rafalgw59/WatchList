@@ -35,6 +35,7 @@
 		2BC13B492ABDAF9800F90921 /* SourceTypeSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BC13B482ABDAF9800F90921 /* SourceTypeSelectionView.swift */; };
 		2BE645242ABEF36700A1D98C /* AddEpisodeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE645232ABEF36700A1D98C /* AddEpisodeView.swift */; };
 		2BE645262ABF7A4500A1D98C /* EpisodeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE645252ABF7A4500A1D98C /* EpisodeViewModel.swift */; };
+		2BE645292AC1EEAB00A1D98C /* MovieSeriesData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE645282AC1EEAB00A1D98C /* MovieSeriesData.swift */; };
 		61D99F7C81148DD26BD1B28F /* Pods_WatchList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 542BBCEC76DCC432CE8375B2 /* Pods_WatchList.framework */; };
 /* End PBXBuildFile section */
 
@@ -68,6 +69,8 @@
 		2BC13B482ABDAF9800F90921 /* SourceTypeSelectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SourceTypeSelectionView.swift; sourceTree = "<group>"; };
 		2BE645232ABEF36700A1D98C /* AddEpisodeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEpisodeView.swift; sourceTree = "<group>"; };
 		2BE645252ABF7A4500A1D98C /* EpisodeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EpisodeViewModel.swift; sourceTree = "<group>"; };
+		2BE645272AC0878600A1D98C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		2BE645282AC1EEAB00A1D98C /* MovieSeriesData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieSeriesData.swift; sourceTree = "<group>"; };
 		542BBCEC76DCC432CE8375B2 /* Pods_WatchList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WatchList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0EC29C8FB80BD6124FE8BE4 /* Pods-WatchList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatchList.release.xcconfig"; path = "Target Support Files/Pods-WatchList/Pods-WatchList.release.xcconfig"; sourceTree = "<group>"; };
 		DBA32767FCC9BCDD0366AFA6 /* Pods-WatchList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatchList.debug.xcconfig"; path = "Target Support Files/Pods-WatchList/Pods-WatchList.debug.xcconfig"; sourceTree = "<group>"; };
@@ -106,6 +109,7 @@
 		2B75B9C72AB9EAF000865A3F /* WatchList */ = {
 			isa = PBXGroup;
 			children = (
+				2BE645272AC0878600A1D98C /* Info.plist */,
 				2B75B9C82AB9EAF000865A3F /* WatchListApp.swift */,
 				2B75B9CA2AB9EAF000865A3F /* ContentView.swift */,
 				2BC13B2F2ABC8E0B00F90921 /* MovieTimerView.swift */,
@@ -122,6 +126,7 @@
 				2BC13B292ABB6ECA00F90921 /* SwipeActions.swift */,
 				2BC13B232ABB60BB00F90921 /* EpisodeListView.swift */,
 				2BC13B2D2ABC723900F90921 /* EditableEpisodeDetailsView.swift */,
+				2BE645282AC1EEAB00A1D98C /* MovieSeriesData.swift */,
 				2BC13B252ABB641D00F90921 /* EpisodeRowView.swift */,
 				2BC13B052ABB0BBE00F90921 /* MovieSeriesDetailsViewModel.swift */,
 				2BE645252ABF7A4500A1D98C /* EpisodeViewModel.swift */,
@@ -289,6 +294,7 @@
 				2BC13B422ABDAF5600F90921 /* CropShapeListView.swift in Sources */,
 				2BC13B322ABD93D500F90921 /* TimerViewModel.swift in Sources */,
 				2B75B9CB2AB9EAF000865A3F /* ContentView.swift in Sources */,
+				2BE645292AC1EEAB00A1D98C /* MovieSeriesData.swift in Sources */,
 				2BC13B2C2ABC6CE600F90921 /* CountdownTimerView.swift in Sources */,
 				2BE645242ABEF36700A1D98C /* AddEpisodeView.swift in Sources */,
 				2BC13B492ABDAF9800F90921 /* SourceTypeSelectionView.swift in Sources */,
@@ -443,11 +449,14 @@
 				DEVELOPMENT_TEAM = 8CTL55U895;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WatchList/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -473,11 +482,14 @@
 				DEVELOPMENT_TEAM = 8CTL55U895;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = WatchList/Info.plist;
+				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				INFOPLIST_KEY_UISupportsDocumentBrowser = YES;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

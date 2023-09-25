@@ -7,21 +7,27 @@ struct MovieSeries: Identifiable, Codable {
     var type: String
     var imageFilename: String
     var episodes: [Episode]?
-    var id: UUID {
-        return UUID()
-    }
+    var id: UUID
     var nextEpisodeReleaseDate: Date? {
-        if type == "series" {
-            if let episodes = episodes, !episodes.isEmpty {
-                let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
-                for episode in sortedEpisodes {
-                    if episode.releaseDate > Date() {
-                        return episode.releaseDate
+        get {
+            if type == "series" {
+                if let episodes = episodes, !episodes.isEmpty {
+                    let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
+                    for episode in sortedEpisodes {
+                        if episode.releaseDate > Date() {
+                            return episode.releaseDate
+                        }
                     }
                 }
             }
+            return nil
         }
-        return nil
+        set {
+
+        }
+    }
+    var numberOfEpisodes: Int? {
+        return episodes?.count
     }
     var releaseDateCountdownText: String {
         let now = Date()
@@ -41,6 +47,7 @@ struct MovieSeries: Identifiable, Codable {
     }
     
     enum CodingKeys: String, CodingKey {
+        case id
         case title
         case releaseDate
         case type
@@ -53,9 +60,7 @@ struct Episode: Identifiable, Codable, Equatable {
     var episodeNumber: Int
     var title: String
     var releaseDate: Date
-    var id: UUID {
-        return UUID()
-    }
+    var id: UUID
     static func == (lhs: Episode, rhs: Episode) -> Bool {
         return lhs.episodeNumber == rhs.episodeNumber &&
                lhs.title == rhs.title &&

@@ -3,8 +3,8 @@ import Mantis
 
 struct AddMovieSeriesView: View {
     @Binding var movieSeriesData: [MovieSeries]
-    
-    @State private var newMovieSeries: MovieSeries = MovieSeries(title: "", releaseDate: Date(), type: "", imageFilename: "")
+    @Binding var isAddingMovieSeries: Bool
+    @State private var newMovieSeries: MovieSeries = MovieSeries(title: "", releaseDate: Date(), type: "", imageFilename: "", id: UUID())
     @State private var selectedImage: UIImage? = nil
     @State private var showImagePicker = false
     @State private var showCropScreen = false
@@ -12,7 +12,7 @@ struct AddMovieSeriesView: View {
     @State private var showAddEpisodeSheet = false
     @State private var episodes: [Episode] = []
     @State private var editingEpisode: Episode?
-    
+    //@State private var movieSeriesData: [MovieSeries]
     
 
 //    @State private var cropShapeType: Mantis.CropShapeType = .rect
@@ -64,19 +64,12 @@ struct AddMovieSeriesView: View {
                             .frame(height: 200)
                         }
                         
-                        
-                        
-                        //                    if let selectedImage = selectedImage {
-                        //                        Image(uiImage: selectedImage)
-                        //                            .resizable()
-                        //                            .scaledToFit()
-                        //                            .frame(height: 200)
-                        //                    }
+
                     }
                     
                     Section(header: Text("Movie/Series Details")) {
                         TextField("Title", text: $newMovieSeries.title)
-                        DatePicker("Release Date", selection: $newMovieSeries.releaseDate, displayedComponents: .date)
+                        DatePicker("Release Date", selection: $newMovieSeries.releaseDate)
                         
                         Picker("Type", selection: $newMovieSeries.type) {
                             Text("Movie").tag("movie")
@@ -86,29 +79,41 @@ struct AddMovieSeriesView: View {
                             Button("Add Episode") {
                                 showAddEpisodeSheet = true
                             }
-                        }
-                        
-                        ForEach(episodes){ episode in
-                            Button(action: {
-                                editingEpisode = episode
-                                showAddEpisodeSheet = true
-                            }) {
-                                Text("Episode \(episode.episodeNumber): \(episode.title)")
-                                    .font(.headline)
-                                Text("Release Date: \(episode.releaseDate)")
-                                    .font(.subheadline)
+                            Section(header: Text("Episodes")){
+                                List{
+                                    ForEach(episodes){ episode in
+                                        Button(action: {
+                                            editingEpisode = episode
+                                            //showAddEpisodeSheet = true
+                                        }) {
+                                            VStack(alignment: .leading){
+                                                Text("Episode \(episode.episodeNumber): \(episode.title)")
+                                                    .font(.headline)
+                                                    .foregroundColor(.primary)
+                                                Text("Release Date: \(formattedDate(episode.releaseDate))")
+                                                    .font(.subheadline)
+                                                    .foregroundColor(.secondary)
+                                            }
+                                            
+                                        }
+                                        
+                                    }
+                                    
+                                }
                             }
-                            
                         }
 
                     }
                 }
+
+
             }
+            
+            
             .sheet(isPresented: $showImagePicker) {
                 ImagePickerView(image: $selectedImage,isPresented: $showImagePicker) { selectedImage in
                     self.selectedImage = selectedImage
                     self.showImagePicker = false
-//                    self.showCropScreen = true
                 }
                 .onDisappear {
                     self.showCropScreen = true
@@ -117,11 +122,26 @@ struct AddMovieSeriesView: View {
             .fullScreenCover(isPresented: $showCropScreen, content: {
                 ImageCropper(image: $selectedImage)
                 .ignoresSafeArea()
+                .onDisappear{
+                    //add imageFilename to plist/model, imageFilename is title of movie/series
+                    if let selectedImage = selectedImage {
+                        let imageName = newMovieSeries.title
+                        //saveImageToAssets(image: selectedImage, imageName: imageName)
+                    }
+                    //selectedImage = $newMovieSeries.imageFilename
+                    //add image to assets
+                    //selectedImage =
+                }
             })
             .navigationBarTitle("Add Movie/Series", displayMode: .inline)
             .navigationBarItems(trailing:
                 Button(action: {
+                newMovieSeries.episodes = episodes
                     saveMovieSeries()
+                
+                
+                
+                
                 }) {
                     Text("Add")
                 }
@@ -131,6 +151,7 @@ struct AddMovieSeriesView: View {
         .sheet(isPresented: $showAddEpisodeSheet){
             
             AddEpisodeView(episodes: $episodes, isAddingEpisode: $showAddEpisodeSheet)
+
         }
 //        .sheet(isPresented: $showCropScreen) {
 //            // Present the ImageCropper with the selected image and predefined crop settings
@@ -139,9 +160,43 @@ struct AddMovieSeriesView: View {
     }
 
     private func saveMovieSeries() {
+        newMovieSeries.imageFilename = newMovieSeries.title
+        saveImage(file: newMovieSeries.imageFilename)
         movieSeriesData.append(newMovieSeries)
+        //saving data to plist
+        let encoder = PropertyListEncoder()
+        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentDirectory.appendingPathComponent("MovieSeriesData.plist")
+            do {
+                let data = try encoder.encode(movieSeriesData)
+                try data.write(to: fileURL)
+                print("Movie series data saved to \(fileURL.path)")
+            } catch {
+                print("Error saving movie series data: \(error)")
+            }
+        }
+        isAddingMovieSeries = false
     }
+    
+    private func formattedDate(_ date: Date? = nil) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        formatter.timeStyle = .full
 
+        return formatter.string(from: date!)
+    }
+    
+    func saveImage(file: String) {
+        do {
+            let fileURL = try FileManager.default
+                .url(for: .documentDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+                .appendingPathComponent(file)
+                .appendingPathExtension("png")
+            try selectedImage!.pngData()?.write(to: fileURL)
+        } catch {
+            print("could not create file: \(file)")
+        }
+    }
     private func isFormValid() -> Bool {
         return !newMovieSeries.title.isEmpty && !newMovieSeries.type.isEmpty
     }
