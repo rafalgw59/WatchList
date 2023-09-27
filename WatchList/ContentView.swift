@@ -3,7 +3,8 @@ import SwiftUI
 import Mantis
 
 struct ContentView: View {
-    @ObservedObject var movieSeriesData: MovieSeriesData = MovieSeriesData()
+    @ObservedObject var movieSeriesData: MovieSeriesData
+    @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
     @State private var showDetailsSheet = false
 //    @State private var movieSeriesData: [MovieSeries] = []
     @State private var selectedMovieSeries: MovieSeries? = nil
@@ -13,13 +14,14 @@ struct ContentView: View {
 //    @State private var presetFixedRatioType: Mantis.PresetFixedRatioType = .canUseMultiplePresetFixedRatio()
     @State private var selectedImage: UIImage? = nil
     @State private var showCropScreen = false
+
     var timer = Timer()
     
     var body: some View {
         NavigationView {
             VStack {
-                List(movieSeriesData.movieSeries, id: \.title) { movieSeries in
-                    MovieTimerView(movieSeries: movieSeries)
+                List(movieSeriesData.movieSeries, id: \.id) { movieSeries in
+                    MovieTimerView(movieSeries: movieSeries, movieSeriesData: movieSeriesData)
                         .onTapGesture {
                             showDetailsSheet.toggle()
                             selectedMovieSeries = movieSeries
@@ -39,7 +41,7 @@ struct ContentView: View {
                 }
                 .padding()
                 .sheet(isPresented: $showAddMovieSeries){
-                    AddMovieSeriesView(movieSeriesData: $movieSeriesData.movieSeries, isAddingMovieSeries: $showAddMovieSeries)
+                    AddMovieSeriesView(movieSeriesData: movieSeriesData, isAddingMovieSeries: $showAddMovieSeries)
                     
                 }
             }
@@ -90,13 +92,5 @@ struct ContentView: View {
     }
 }
 
-
-
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
 
 

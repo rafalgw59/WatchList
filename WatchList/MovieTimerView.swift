@@ -3,7 +3,8 @@ import SwiftUI
 
 struct MovieTimerView: View {
     var movieSeries: MovieSeries
-
+    @ObservedObject var movieSeriesData: MovieSeriesData
+    @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
     @State private var remainingTime: TimeInterval = 0
     @State private var timer: Timer? = nil
     @State private var nextEpisode: Episode? = nil
@@ -21,7 +22,7 @@ struct MovieTimerView: View {
                         .opacity(0.8)
                     // Image as the background
                     
-                    if !movieSeries.title.isEmpty{
+                    if !movieSeriesData.getImageFilename(forTitle: movieSeries.title)!.isEmpty {
                         Image(uiImage: coverImage ?? UIImage())
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -52,7 +53,7 @@ struct MovieTimerView: View {
                             .padding()
                         
                         if movieSeries.type == "series" {
-                            if let episode = nextEpisode {
+                            if let episode = movieSeries.nextEpisode {
                                 Text("Next Episode: Episode \(episode.episodeNumber): \(episode.title)")
                                     .foregroundColor(.white)
                                     .font(.subheadline)

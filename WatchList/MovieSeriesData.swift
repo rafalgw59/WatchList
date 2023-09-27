@@ -28,6 +28,9 @@ class MovieSeriesData: ObservableObject {
     func getImageFilename(forTitle name: String) -> String? {
         return getTitle(byName: name)?.imageFilename
     }
+    func getNextEpisodeReleaseDate(forTitle name: String) -> Date? {
+        return getTitle(byName: name)?.nextEpisodeReleaseDate
+    }
     
     private func loadMovieSeriesDataFromFile(_ plistName: String) -> [MovieSeries]? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {

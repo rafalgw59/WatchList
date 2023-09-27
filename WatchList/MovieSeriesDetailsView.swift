@@ -5,9 +5,9 @@ struct MovieSeriesDetailsView: View {
 
     var movieSeries: MovieSeries
     @ObservedObject var viewModel: MovieSeriesDetailsViewModel = MovieSeriesDetailsViewModel(episodes: [])
-    @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel
+    @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
     @ObservedObject var episodeViewModel: EpisodeViewModel
-    @ObservedObject var movieSeriesData: MovieSeriesData
+    var movieSeriesData: MovieSeriesData
     @State private var countdownText: String = ""
     @State private var isTimerRunning = false
     @State private var selectedEpisode: Episode?
@@ -20,6 +20,7 @@ struct MovieSeriesDetailsView: View {
     @State private var releaseStatus: String = ""
     @State private var episodes: [Episode] = []
     @State private var coverImage: UIImage? = nil
+    @State var movieSeriesID: UUID = UUID()
     
     private var selectedEpisodePublisher = PassthroughSubject<Episode?, Never>()
     private var timer: Timer?
@@ -29,19 +30,21 @@ struct MovieSeriesDetailsView: View {
         self.movieSeriesData = movieSeriesData
         self.viewModel = MovieSeriesDetailsViewModel(episodes: movieSeries.episodes ?? [])
         self.episodeViewModel = EpisodeViewModel(episodes: movieSeries.episodes ?? [])
-        
         if movieSeries.type == "movie" {
             self.countdownTimerViewModel = CountdownTimerViewModel()
-            countdownTimerViewModel.startCountdownTimer(for: movieSeries.releaseDate, nextEpisodeReleaseDate: nil)
-        } else if movieSeries.type == "series", let nextEpisodeReleaseDate = movieSeries.nextEpisodeReleaseDate {
+            if let movieSeriesReleaseDate = movieSeriesData.getReleaseDate(forTitle: movieSeries.title){
+                countdownTimerViewModel.startCountdownTimer(for: movieSeriesReleaseDate, nextEpisodeReleaseDate: nil)
+            }
+        } else if movieSeries.type == "series" {
             self.countdownTimerViewModel = CountdownTimerViewModel()
-            countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: nextEpisodeReleaseDate)
+            if let nextEpisodeReleaseDate = movieSeriesData.getNextEpisodeReleaseDate(forTitle: movieSeries.title){
+                countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: nextEpisodeReleaseDate)
+
+            }
         } else {
             self.countdownTimerViewModel = CountdownTimerViewModel()
         }
-//        if let episodes = movieSeries.episodes {
-//            self._episodes = State(initialValue: episodes)
-//        }
+
     }
 
 
@@ -50,7 +53,7 @@ struct MovieSeriesDetailsView: View {
             ZStack {
                 
                 //Image(movieSeries.imageFilename)
-                if !movieSeriesData.getEpisodes(forTitle: movieSeries.title)!.isEmpty {
+                if !movieSeriesData.getImageFilename(forTitle: movieSeries.title)!.isEmpty {
                     Image(uiImage: coverImage ?? UIImage())
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -106,6 +109,7 @@ struct MovieSeriesDetailsView: View {
                             Button(action: {
                                 selectedEpisodeForEditing = episode
                                 isEditingSheetPresented = true
+
                             }) {
                                 EpisodeRowView(episode: episode, formattedDate: formattedDate)
                             }
@@ -115,6 +119,7 @@ struct MovieSeriesDetailsView: View {
                                 isAddingEpisode = true
                             }
                             .foregroundColor(.blue)
+                            
                             Button("Add Multiple Episodes"){
                                 isAddingMultipleEpisodes = true
                             }
@@ -124,82 +129,56 @@ struct MovieSeriesDetailsView: View {
                 }
                 
             }
-                
-
-//            if movieSeries.type == "series" {
-//                Divider()
-//
-//                //Text("Episodes: \(viewModel.numberOfEpisodes)")
-//                Text("Episodes: \(String(format: "%d", movieSeries.numberOfEpisodes ?? 0))")
-//                    .font(.headline)
-//                    .padding()
-//                if let episodes = movieSeriesData.getEpisodes(forTitle: movieSeries.title), !episodes.isEmpty {
-//                    let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
-//                    if sortedEpisodes[0].releaseDate > Date() {
-//                        Text("Next Episode: Episode \(sortedEpisodes[0].episodeNumber): \(sortedEpisodes[0].title)")
-//                            .font(.headline)
-//                            .padding(.top)
-//                            .padding(.bottom)
-//                    }
-//                }
-//
-//                List {
-//                    ForEach(movieSeries.episodes!, id: \.id) { episode in
-//                        Button(action: {
-//                            selectedEpisodeForEditing = episode
-//                            isEditingSheetPresented = true
-//                        }) {
-//                            EpisodeRowView(episode: episode, formattedDate: formattedDate)
-//                        }
-//                    }
-//                    Section{
-//                        Button("Add Episode"){
-//                            isAddingEpisode = true
-//                        }
-//                        .foregroundColor(.blue)
-//                        Button("Add Multiple Episodes"){
-//                            isAddingMultipleEpisodes = true
-//                        }
-//                    }
-//                }
-//
-//            }
-
+ 
             Spacer()
         }
         .navigationBarTitle("Details", displayMode: .inline)
+//        .onAppear {
+//            if let selectedMovieSeries = movieSeriesData.movieSeries.first(where: {$0.title == movieSeries.title}){
+//                if let episodes = selectedMovieSeries.episodes{
+//                    self.episodes = episodes
+//                }
+//                self.movieSeriesID = selectedMovieSeries.id
+//            }
+//            coverImage = loadCoverImage(for: movieSeries.title)
+//            countdownTimerViewModel.startCountdownTimer(for: movieSeries.releaseDate, nextEpisodeReleaseDate: movieSeries.nextEpisodeReleaseDate)
+//        }
         .onAppear {
-            //episodeIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.episodes?.contains { $0.id == episode?.id } ?? false })
-            let selectedMovieSeries = movieSeriesData.movieSeries.first(where: {$0.title == movieSeries.title})
-            episodes = (selectedMovieSeries?.episodes)!
-            print(selectedMovieSeries)
+            if let selectedMovieSeries = movieSeriesData.movieSeries.first(where: {$0.title == movieSeries.title}){
+                if let episodes = selectedMovieSeries.episodes, !episodes.isEmpty {
+                    countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: selectedMovieSeries.nextEpisodeReleaseDate)
+                } else {
+                    countdownTimerViewModel.startCountdownTimer(for: selectedMovieSeries.releaseDate, nextEpisodeReleaseDate: nil)
+                }
+
+                if let episodes = selectedMovieSeries.episodes {
+                    self.episodes = episodes
+                }
+                self.movieSeriesID = selectedMovieSeries.id
+            }
             coverImage = loadCoverImage(for: movieSeries.title)
-            countdownTimerViewModel.startCountdownTimer(for: movieSeries.releaseDate, nextEpisodeReleaseDate: movieSeries.nextEpisodeReleaseDate)
         }
+
         .onDisappear {
             countdownTimerViewModel.stopTimer()
         }
 
         .sheet(isPresented: $isEditingSheetPresented) {
-            
-//            EditableEpisodeDetailsView(episodes: $episodes, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented,shouldReloadParent:$shouldReload)
-            
-            //EditableEpisodeDetailsView(viewModel: viewModel, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented)
-            EditableEpisodeDetailsView(movieSeriesData: movieSeriesData, episodes: $episodes, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented,viewModel: viewModel)
+
+            EditableEpisodeDetailsView(movieSeriesData: movieSeriesData, episodes: $episodes, episode: $selectedEpisodeForEditing, isEditingEpisode: $isEditingSheetPresented, countdownTimerViewModel: countdownTimerViewModel)
             
             
         }
         .sheet(isPresented: $isAddingEpisode){
-            AddEpisodeView(episodes: $viewModel.episodes, isAddingEpisode: $isAddingEpisode)
+            AddEpisodeToExistingMovieSeriesView(movieSeriesData: movieSeriesData, movieSeriesId: $movieSeriesID, episodes: $episodes, isAddingEpisode: $isAddingEpisode,countdownTimerViewModel: countdownTimerViewModel)
         }
+
         .sheet(isPresented: $isAddingMultipleEpisodes){
             //AddMultipleEpisodesView()
         }
 
     }
 
-    
-    
     private func loadCoverImage(for title: String) -> UIImage? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(title).png")

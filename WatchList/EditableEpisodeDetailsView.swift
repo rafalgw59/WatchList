@@ -3,22 +3,21 @@ import SwiftUI
 import Combine
 
 struct EditableEpisodeDetailsView: View {
-    @ObservedObject var viewModel: MovieSeriesDetailsViewModel
     @ObservedObject var movieSeriesData: MovieSeriesData
 //    @Binding var movieSeries: MovieSeries
     @Binding var episodes: [Episode]
     @Binding var episode: Episode?
     @Binding var isEditingEpisode: Bool
-    
+    //let episodeDeletedCallback: () -> Void
     @State private var episodeNumberText: String
     @State private var title: String
     @State private var releaseDate: Date
+    @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
+    //var episodeNumberText: String
     
-    
-    init(movieSeriesData:MovieSeriesData,episodes: Binding<[Episode]>, episode: Binding<Episode?>, isEditingEpisode: Binding<Bool>, viewModel: MovieSeriesDetailsViewModel) {
+    init(movieSeriesData:MovieSeriesData,episodes: Binding<[Episode]>, episode: Binding<Episode?>, isEditingEpisode: Binding<Bool>, countdownTimerViewModel: CountdownTimerViewModel) {
         self.movieSeriesData = movieSeriesData
-//        self._movieSeries = movieSeries
-        self.viewModel = viewModel
+        self.countdownTimerViewModel = countdownTimerViewModel
         self._episodes = episodes
         self._episode = episode
         self._isEditingEpisode = isEditingEpisode
@@ -32,7 +31,7 @@ struct EditableEpisodeDetailsView: View {
             if let episode = episode {
                 Form {
                     Section(header: Text("Episode Details")) {
-                        TextField("Episode Number", text: $episodeNumberText)
+                        TextField("Episode Number",text: $episodeNumberText)
                             .keyboardType(.numberPad)
                             .onAppear {
                                 episodeNumberText = String(episode.episodeNumber)
@@ -54,12 +53,13 @@ struct EditableEpisodeDetailsView: View {
                     
                     Section {
                         Button("Save Changes") {
-                            editEpisode()
+                            editEpisode(episodeToEdit: episode)
                         }
                         .foregroundColor(.blue)
                         
                         Button("Delete Episode") {
-                            deleteEpisode()
+                            deleteEpisode(episodeToDelete: episode)
+                            //countdownTimerViewModel.startCountdownTimer(for: <#T##Date?#>, nextEpisodeReleaseDate: )
                         }
                         .foregroundColor(.red)
                     }
@@ -70,58 +70,23 @@ struct EditableEpisodeDetailsView: View {
             }
         }
     }
-    //    private func saveEpisode() {
-    //        let newEpisode = Episode(episodeNumber: episodeNumber, title: title, releaseDate: releaseDate)
-    //        episodes.append(newEpisode)
-    //        isAddingEpisode = false
-    //    }
-//    private func editEpisode() {
-//        //let episodeIndex = episodes.firstIndex(of: episode!)
-////        let episodeIndex = movieSeriesData.episodes?.firstIndex(of: episode!)
-//
-//        var updatedEpisode = episode
-//        updatedEpisode?.episodeNumber = Int(episodeNumberText) ?? 0
-//        updatedEpisode?.title = title
-//        updatedEpisode?.releaseDate = releaseDate
-//
-//
-//        movieSeries.episodes![episodeIndex!] = updatedEpisode!
-//        //updateEpisodeInPlist(updatedEpisode!)
-//        //viewModel.saveEpisodesToPlist()
-//        updateEpisodeInPlist(updatedEpisode!)
-//
-//        isEditingEpisode = false
-//    }
-//
-//
-//
-//    private func deleteEpisode() {
-////        let episodeIndex = episodes.firstIndex(of: episode!)
-//        let episodeIndex = movieSeries.episodes?.firstIndex(of: episode!)
-//
-//        movieSeries.episodes!.remove(at: episodeIndex!)
-//        removeEpisodeFromPlist(episode!)
-//        //viewModel.saveEpisodesToPlist()
-//
-//
-//        episode = nil
-//        isEditingEpisode = false
-//
-//    }
+
     
-    private func editEpisode() {
-//        if let episodeIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.episodes?.contains { $0.id == episode?.id } ?? false }) {
-        if let episodeIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.episodes?.contains { $0.id == episode?.id } ?? false }) {
+    private func editEpisode(episodeToEdit episode: Episode) {
+        if let movieSeriesIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.episodes?.contains { $0.id == episode.id } ?? false }) {
 
             var updatedEpisode = episode
-            updatedEpisode?.episodeNumber = Int(episodeNumberText) ?? 0
-            updatedEpisode?.title = title
-            updatedEpisode?.releaseDate = releaseDate
+            updatedEpisode.episodeNumber = Int(episodeNumberText) ?? 0
+            updatedEpisode.title = title
+            updatedEpisode.releaseDate = releaseDate
 
-            movieSeriesData.movieSeries[episodeIndex].episodes?.removeAll { $0.id == updatedEpisode?.id }
-            if let updatedEpisode = updatedEpisode {
-                movieSeriesData.movieSeries[episodeIndex].episodes?.append(updatedEpisode)
-                updateEpisodeInPlist(updatedEpisode)
+            movieSeriesData.movieSeries[movieSeriesIndex].episodes?.removeAll { $0.id == updatedEpisode.id }
+            
+            movieSeriesData.movieSeries[movieSeriesIndex].episodes?.append(updatedEpisode)
+            updateEpisodeInPlist(updatedEpisode)
+
+            if let sortedEpisodes = movieSeriesData.movieSeries[movieSeriesIndex].episodes?.sorted(by: {$0.releaseDate < $1.releaseDate}){
+                countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: sortedEpisodes.first?.releaseDate)
 
             }
 
@@ -131,18 +96,38 @@ struct EditableEpisodeDetailsView: View {
         isEditingEpisode = false
     }
 
-    private func deleteEpisode() {
-        if let episodeIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.episodes?.contains { $0.id == episode?.id } ?? false }) {
-            movieSeriesData.movieSeries[episodeIndex].episodes?.removeAll { $0.id == episode?.id }
 
-            // episodes.remove(at: episodeIndex)
+    private func deleteEpisode(episodeToDelete episode: Episode) {
+        if let movieSeriesIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.episodes?.contains { $0.id == episode.id} ?? false}) {
+            if let episodeIndex = movieSeriesData.movieSeries[movieSeriesIndex].episodes?.firstIndex(where: { $0.id == episode.id}) {
+                movieSeriesData.movieSeries[movieSeriesIndex].episodes?.remove(at: episodeIndex)
+                removeEpisodeFromPlist(episode)
+                episodes.removeAll(where: {$0.id == episode.id})
+                movieSeriesData.movieSeries[movieSeriesIndex].episodes = episodes
+                if let sortedEpisodes = movieSeriesData.movieSeries[movieSeriesIndex].episodes?.sorted(by: {$0.releaseDate < $1.releaseDate}) {
+                    if let nextEpisodeReleaseDate = sortedEpisodes.first?.releaseDate {
+                        countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: nextEpisodeReleaseDate)
+                        print("Timer started with nextEpisodeReleaseDate: \(nextEpisodeReleaseDate)")
+                    } else {
+                        // No more episodes, set timer to series release date
+                        countdownTimerViewModel.startCountdownTimer(for: movieSeriesData.movieSeries[movieSeriesIndex].releaseDate, nextEpisodeReleaseDate: nil)
+                        countdownTimerViewModel.updateCountdown()
+                        print("Timer started with Series Release Date 1: \(movieSeriesData.movieSeries[movieSeriesIndex].releaseDate)")
+                    }
+                } else {
+                    // No more episodes, set timer to series release date
+                    countdownTimerViewModel.startCountdownTimer(for: movieSeriesData.movieSeries[movieSeriesIndex].releaseDate, nextEpisodeReleaseDate: nil)
+                    print("Timer started with Series Release Date 2: \(movieSeriesData.movieSeries[movieSeriesIndex].releaseDate)")
+                }
+                
 
-            // removeEpisodeFromPlist(episode)
+                //episodeDeletedCallback()
+            }
         }
-
-        episode = nil
+        
         isEditingEpisode = false
     }
+
 
     
     private func removeEpisodeFromPlist(_ deletedEpisode: Episode) {
@@ -154,10 +139,7 @@ struct EditableEpisodeDetailsView: View {
             }
         }
     }
-    
-    private func saveEpisode(){
-        
-    }
+ 
     
     private func updateEpisodeInPlist(_ updatedEpisode: Episode) {
         if var movieSeriesArray = loadMovieSeriesData("MovieSeriesData") {

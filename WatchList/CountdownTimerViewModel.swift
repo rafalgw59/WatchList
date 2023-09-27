@@ -1,20 +1,30 @@
 
 import Foundation
+import Combine
 
 class CountdownTimerViewModel: ObservableObject {
     @Published var countdownText: String = ""
+    
+    static let shared = CountdownTimerViewModel()
+    
     private var timer: Timer?
-    private var targetDate: Date?
+    private var releaseDate: Date?
+    private var nextEpisodeReleaseDate: Date?
+//    private var targetDate: Date?
+    private let timerUpdatePublisher = PassthroughSubject<Void, Never>()
     
     func startCountdownTimer(for releaseDate: Date?, nextEpisodeReleaseDate: Date?) {
+        
+        self.releaseDate = releaseDate
+        self.nextEpisodeReleaseDate = nextEpisodeReleaseDate
+        
         guard let targetDate = releaseDate ?? nextEpisodeReleaseDate else {
             return
         }
         
-        self.targetDate = targetDate
         
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
-            self?.updateCountdown(releaseDate: releaseDate, nextEpisodeReleaseDate: nextEpisodeReleaseDate)
+            self?.updateCountdown()
         }
     }
 
@@ -23,8 +33,8 @@ class CountdownTimerViewModel: ObservableObject {
         timer = nil
     }
 
-    private func updateCountdown(releaseDate: Date?, nextEpisodeReleaseDate: Date?) {
-        guard let targetDate = targetDate else {
+    func updateCountdown() {
+        guard let targetDate = releaseDate ?? nextEpisodeReleaseDate else {
             countdownText = ""
             return
         }
@@ -51,6 +61,7 @@ class CountdownTimerViewModel: ObservableObject {
             countdownText = "Released"
             stopTimer()
         }
+        timerUpdatePublisher.send()
     }
     
     private func formatCountdownText(_ days: Int, _ hours: Int, _ minutes: Int, _ seconds: Int) -> String {

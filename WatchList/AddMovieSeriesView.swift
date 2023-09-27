@@ -2,7 +2,7 @@ import SwiftUI
 import Mantis
 
 struct AddMovieSeriesView: View {
-    @Binding var movieSeriesData: [MovieSeries]
+    @ObservedObject var movieSeriesData: MovieSeriesData
     @Binding var isAddingMovieSeries: Bool
     @State private var newMovieSeries: MovieSeries = MovieSeries(title: "", releaseDate: Date(), type: "", imageFilename: "", id: UUID())
     @State private var selectedImage: UIImage? = nil
@@ -136,7 +136,7 @@ struct AddMovieSeriesView: View {
             .navigationBarTitle("Add Movie/Series", displayMode: .inline)
             .navigationBarItems(trailing:
                 Button(action: {
-                newMovieSeries.episodes = episodes
+                    newMovieSeries.episodes = episodes
                     saveMovieSeries()
                 
                 
@@ -150,7 +150,7 @@ struct AddMovieSeriesView: View {
         }
         .sheet(isPresented: $showAddEpisodeSheet){
             
-            AddEpisodeView(episodes: $episodes, isAddingEpisode: $showAddEpisodeSheet)
+            AddEpisodeView(movieSeriesData: movieSeriesData ,episodes: $episodes, isAddingEpisode: $showAddEpisodeSheet)
 
         }
 //        .sheet(isPresented: $showCropScreen) {
@@ -161,27 +161,33 @@ struct AddMovieSeriesView: View {
 
     private func saveMovieSeries() {
         newMovieSeries.imageFilename = newMovieSeries.title
+        newMovieSeries.id = UUID()
         saveImage(file: newMovieSeries.imageFilename)
-        movieSeriesData.append(newMovieSeries)
+        //movieSeriesData.append(newMovieSeries)
         //saving data to plist
-        let encoder = PropertyListEncoder()
-        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-            let fileURL = documentDirectory.appendingPathComponent("MovieSeriesData.plist")
-            do {
-                let data = try encoder.encode(movieSeriesData)
-                try data.write(to: fileURL)
-                print("Movie series data saved to \(fileURL.path)")
-            } catch {
-                print("Error saving movie series data: \(error)")
-            }
-        }
+//        let encoder = PropertyListEncoder()
+//        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+//            let fileURL = documentDirectory.appendingPathComponent("MovieSeriesData.plist")
+//            do {
+//                let data = try encoder.encode(movieSeriesData)
+//                try data.write(to: fileURL)
+//                print("Movie series data saved to \(fileURL.path)")
+//            } catch {
+//                print("Error saving movie series data: \(error)")
+//            }
+//        }
+        var movieSeriesArray = loadMovieSeriesData("MovieSeriesData")
+        movieSeriesArray.append(newMovieSeries)
+        saveMovieSeriesData(movieSeriesArray, plistName: "MovieSeriesData")
+        movieSeriesData.movieSeries = movieSeriesArray
+    
         isAddingMovieSeries = false
     }
     
     private func formattedDate(_ date: Date? = nil) -> String {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
-        formatter.timeStyle = .full
+        formatter.timeStyle = .short
 
         return formatter.string(from: date!)
     }
@@ -199,5 +205,50 @@ struct AddMovieSeriesView: View {
     }
     private func isFormValid() -> Bool {
         return !newMovieSeries.title.isEmpty && !newMovieSeries.type.isEmpty
+    }
+    private func loadMovieSeriesData(_ plistName: String) -> [MovieSeries] {
+        let fileManager = FileManager.default
+        let documentsDirectory = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first!
+        let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
+        
+        if fileManager.fileExists(atPath: fileURL.path) {
+            // File exists, load data from it
+            do {
+                let data = try Data(contentsOf: fileURL)
+                let decoder = PropertyListDecoder()
+                let movieSeries = try decoder.decode([MovieSeries].self, from: data)
+                return movieSeries
+            } catch {
+                print("Error loading data from \(plistName).plist: \(error)")
+                return []
+            }
+        } else {
+            // File does not exist, create and save default data
+            let defaultMovieSeriesData: [MovieSeries] = [] // Replace with your default data
+            
+            do {
+                let encoder = PropertyListEncoder()
+                let data = try encoder.encode(defaultMovieSeriesData)
+                try data.write(to: fileURL)
+                return defaultMovieSeriesData
+            } catch {
+                print("Error creating and saving \(plistName).plist: \(error)")
+                return []
+            }
+        }
+    }
+
+    private func saveMovieSeriesData(_ movieSeries: [MovieSeries], plistName: String) {
+        let encoder = PropertyListEncoder()
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
+            do {
+                let data = try encoder.encode(movieSeries)
+                try data.write(to: fileURL)
+                print("Movie series data saved to \(fileURL.path)")
+            } catch {
+                print("Error saving movie series data: \(error)")
+            }
+        }
     }
 }

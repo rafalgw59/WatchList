@@ -29,6 +29,20 @@ struct MovieSeries: Identifiable, Codable {
     var numberOfEpisodes: Int? {
         return episodes?.count
     }
+    var nextEpisode: Episode? {
+        if type == "series", let episodes = episodes, !episodes.isEmpty {
+            let now = Date()
+            let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
+
+            for episode in sortedEpisodes {
+                if episode.releaseDate > now {
+                    return episode
+                }
+            }
+        }
+        return nil
+    }
+
     var releaseDateCountdownText: String {
         let now = Date()
         let calendar = Calendar.current

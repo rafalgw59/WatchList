@@ -3,9 +3,10 @@ import SwiftUI
 
 @main
 struct WatchListApp: App {
+    @StateObject var movieSeriesData = MovieSeriesData()
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(movieSeriesData: movieSeriesData)
         }
     }
 }

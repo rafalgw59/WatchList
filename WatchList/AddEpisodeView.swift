@@ -2,7 +2,7 @@
 import SwiftUI
 
 struct AddEpisodeView: View {
-
+    @ObservedObject var movieSeriesData: MovieSeriesData
     @Binding var episodes: [Episode]
     @Binding var isAddingEpisode: Bool
     @State private var id: UUID = UUID()
