@@ -1,6 +1,7 @@
 import SwiftUI
 import Mantis
 
+
 struct AddMovieSeriesView: View {
     @ObservedObject var movieSeriesData: MovieSeriesData
     @Binding var isAddingMovieSeries: Bool
@@ -12,15 +13,9 @@ struct AddMovieSeriesView: View {
     @State private var showAddEpisodeSheet = false
     @State private var episodes: [Episode] = []
     @State private var editingEpisode: Episode?
-    //@State private var movieSeriesData: [MovieSeries]
+    @StateObject var dateManager = DateManager()
+    @State var datePicked = Date()
     
-
-//    @State private var cropShapeType: Mantis.CropShapeType = .rect
-////    @State private var cropShapeType: Mantis.CropShapeType = .path(points: [CGPoint(x: 0, y: 0),CGPoint(x: 0, y: 1),CGPoint(x: 1, y: 1),CGPoint(x: 1, y: 0)],maskOnly: true)
-//
-//    @State private var presetFixedRatioType: Mantis.PresetFixedRatioType = .alwaysUsingOnePresetFixedRatio(ratio: 16.0 / 9.0)
-//    @State private var cropperType: ImageCropperType = .noRotaionDial
-
     var body: some View {
         NavigationView {
             
@@ -77,6 +72,7 @@ struct AddMovieSeriesView: View {
                         }
                         if newMovieSeries.type == "series" {
                             Button("Add Episode") {
+                                dateManager.msReleaseDate = newMovieSeries.releaseDate
                                 showAddEpisodeSheet = true
                             }
                             Section(header: Text("Episodes")){
@@ -149,33 +145,17 @@ struct AddMovieSeriesView: View {
             )
         }
         .sheet(isPresented: $showAddEpisodeSheet){
-            
-            AddEpisodeView(movieSeriesData: movieSeriesData ,episodes: $episodes, isAddingEpisode: $showAddEpisodeSheet)
-
+            AddEpisodeView(movieSeriesData: movieSeriesData ,episodes: $episodes, isAddingEpisode: $showAddEpisodeSheet, newMovieSeries: $newMovieSeries)
+                .environmentObject(dateManager)
         }
-//        .sheet(isPresented: $showCropScreen) {
-//            // Present the ImageCropper with the selected image and predefined crop settings
-//            ImageCropper(image: $selectedImage, cropShapeType: cropShapeType, presetFixedRatioType: presetFixedRatioType, type: cropperType)
-//        }
+
     }
 
     private func saveMovieSeries() {
         newMovieSeries.imageFilename = newMovieSeries.title
         newMovieSeries.id = UUID()
         saveImage(file: newMovieSeries.imageFilename)
-        //movieSeriesData.append(newMovieSeries)
-        //saving data to plist
-//        let encoder = PropertyListEncoder()
-//        if let documentDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
-//            let fileURL = documentDirectory.appendingPathComponent("MovieSeriesData.plist")
-//            do {
-//                let data = try encoder.encode(movieSeriesData)
-//                try data.write(to: fileURL)
-//                print("Movie series data saved to \(fileURL.path)")
-//            } catch {
-//                print("Error saving movie series data: \(error)")
-//            }
-//        }
+
         var movieSeriesArray = loadMovieSeriesData("MovieSeriesData")
         movieSeriesArray.append(newMovieSeries)
         saveMovieSeriesData(movieSeriesArray, plistName: "MovieSeriesData")

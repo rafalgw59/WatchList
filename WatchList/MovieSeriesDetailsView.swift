@@ -21,6 +21,9 @@ struct MovieSeriesDetailsView: View {
     @State private var episodes: [Episode] = []
     @State private var coverImage: UIImage? = nil
     @State var movieSeriesID: UUID = UUID()
+    @State private var isEditingMovieSeries = false
+    @StateObject var dateManager = DateManager()
+
     
     private var selectedEpisodePublisher = PassthroughSubject<Episode?, Never>()
     private var timer: Timer?
@@ -49,100 +52,117 @@ struct MovieSeriesDetailsView: View {
 
 
     var body: some View {
-        VStack {
-            ZStack {
+        NavigationView{
+            VStack {
                 
-                //Image(movieSeries.imageFilename)
-                if !movieSeriesData.getImageFilename(forTitle: movieSeries.title)!.isEmpty {
-                    Image(uiImage: coverImage ?? UIImage())
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .opacity(0.8)
-                        .cornerRadius(15)
-                        .frame(height: 200)
-                        .padding(.top, 50)
-                } else {
-                   
-                }
-
-
-                Text(movieSeries.title)
-                    .font(.title)
-                    .foregroundColor(.white)
-                    .padding(.top, 50)
-            }
-
-            Text("Release Date: \(formattedDate())")
-                .font(.headline)
-                .padding()
-
-            Text("\(countdownTimerViewModel.countdownText)")
-                .font(.headline)
-                .padding()
-
-        
-
-            if let selectedMovieSeries = movieSeriesData.getTitle(byName: movieSeries.title) {
-                Text("Type: \(selectedMovieSeries.type)")
-                    .font(.subheadline)
-                    .padding()
-                
-                if selectedMovieSeries.type == "series" {
-                    Divider()
-
-                    //Text("Episodes: \(viewModel.numberOfEpisodes)")
-                    Text("Episodes: \(String(format: "%d", selectedMovieSeries.numberOfEpisodes ?? 0))")
-                        .font(.headline)
-                        .padding()
-                    if let episodes = selectedMovieSeries.episodes, !episodes.isEmpty {
-                        let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
-                        if sortedEpisodes[0].releaseDate > Date() {
-                            Text("Next Episode: Episode \(sortedEpisodes[0].episodeNumber): \(sortedEpisodes[0].title)")
-                                .font(.headline)
-                                .padding(.top)
-                                .padding(.bottom)
-                        }
+                ZStack {
+                    
+                    //Image(movieSeries.imageFilename)
+                    if !movieSeriesData.getImageFilename(forTitle: movieSeries.title)!.isEmpty {
+                        Image(uiImage: coverImage ?? UIImage())
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .opacity(0.8)
+                            .cornerRadius(15)
+                            .frame(height: 200)
+                            .padding(.top, 50)
+                    } else {
+                        
                     }
                     
-                    List {
-                        ForEach(selectedMovieSeries.episodes!, id: \.id) { episode in
-                            Button(action: {
-                                selectedEpisodeForEditing = episode
-                                isEditingSheetPresented = true
-
-                            }) {
-                                EpisodeRowView(episode: episode, formattedDate: formattedDate)
-                            }
-                        }
-                        Section{
-                            Button("Add Episode"){
-                                isAddingEpisode = true
-                            }
-                            .foregroundColor(.blue)
-                            
-                            Button("Add Multiple Episodes"){
-                                isAddingMultipleEpisodes = true
-                            }
-                        }
-                    }
-
+                    
+                    Text(movieSeries.title)
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .padding(.top, 50)
                 }
                 
+                Text("Release Date: \(formattedDate())")
+                    .font(.headline)
+                    .padding()
+                
+                Text("\(countdownTimerViewModel.countdownText)")
+                    .font(.headline)
+                    .padding()
+                
+                
+                
+                if let selectedMovieSeries = movieSeriesData.getTitle(byName: movieSeries.title) {
+                    Text("Type: \(selectedMovieSeries.type)")
+                        .font(.subheadline)
+                        .padding()
+                    
+                    if selectedMovieSeries.type == "series" {
+                        Divider()
+                        
+                        //Text("Episodes: \(viewModel.numberOfEpisodes)")
+                        Text("Episodes: \(String(format: "%d", selectedMovieSeries.numberOfEpisodes ?? 0))")
+                            .font(.headline)
+                            .padding()
+                        if let episodes = selectedMovieSeries.episodes, !episodes.isEmpty {
+                            let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
+                            if sortedEpisodes[0].releaseDate > Date() {
+                                Text("Next Episode: Episode \(sortedEpisodes[0].episodeNumber): \(sortedEpisodes[0].title)")
+                                    .font(.headline)
+                                    .padding(.top)
+                                    .padding(.bottom)
+                            }
+                        }
+                        
+                        List {
+                            ForEach(selectedMovieSeries.episodes!, id: \.id) { episode in
+                                Button(action: {
+                                    selectedEpisodeForEditing = episode
+                                    isEditingSheetPresented = true
+                                    
+                                }) {
+                                    EpisodeRowView(episode: episode, formattedDate: formattedDate)
+                                }
+                            }
+                            Section{
+                                Button("Add Episode"){
+                                    dateManager.msReleaseDate = episodes.last?.releaseDate ?? selectedMovieSeries.releaseDate
+                                    isAddingEpisode = true
+                                }
+                                .foregroundColor(.blue)
+                                
+                                Button("Add Multiple Episodes"){
+                                    isAddingMultipleEpisodes = true
+                                }
+                            }
+                        }
+                        
+                    }
+                    
+                }
+                
+                Spacer()
             }
- 
-            Spacer()
+            .navigationTitle("Details")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItemGroup(placement: ToolbarItemPlacement.navigationBarLeading){
+                    Button(action: {
+                        isEditingMovieSeries = true
+                    }) {
+                        Image(systemName: "pencil")
+                            .imageScale(.large)
+                            .foregroundColor(.black)
+                    }
+                }
+                ToolbarItemGroup(placement: ToolbarItemPlacement.navigationBarTrailing){
+                    Button(action: {
+                        //deleteMovieSeries(for: )
+                    }) {
+                        Image(systemName: "trash")
+                            .imageScale(.large)
+                            .foregroundColor(.red)
+                    }
+                }
+
+            }
         }
-        .navigationBarTitle("Details", displayMode: .inline)
-//        .onAppear {
-//            if let selectedMovieSeries = movieSeriesData.movieSeries.first(where: {$0.title == movieSeries.title}){
-//                if let episodes = selectedMovieSeries.episodes{
-//                    self.episodes = episodes
-//                }
-//                self.movieSeriesID = selectedMovieSeries.id
-//            }
-//            coverImage = loadCoverImage(for: movieSeries.title)
-//            countdownTimerViewModel.startCountdownTimer(for: movieSeries.releaseDate, nextEpisodeReleaseDate: movieSeries.nextEpisodeReleaseDate)
-//        }
+
         .onAppear {
             if let selectedMovieSeries = movieSeriesData.movieSeries.first(where: {$0.title == movieSeries.title}){
                 if let episodes = selectedMovieSeries.episodes, !episodes.isEmpty {
@@ -157,6 +177,7 @@ struct MovieSeriesDetailsView: View {
                 self.movieSeriesID = selectedMovieSeries.id
             }
             coverImage = loadCoverImage(for: movieSeries.title)
+            dateManager.msReleaseDate = episodes.last?.releaseDate ?? movieSeries.releaseDate
         }
 
         .onDisappear {
@@ -171,14 +192,21 @@ struct MovieSeriesDetailsView: View {
         }
         .sheet(isPresented: $isAddingEpisode){
             AddEpisodeToExistingMovieSeriesView(movieSeriesData: movieSeriesData, movieSeriesId: $movieSeriesID, episodes: $episodes, isAddingEpisode: $isAddingEpisode,countdownTimerViewModel: countdownTimerViewModel)
+                .environmentObject(dateManager)
         }
 
         .sheet(isPresented: $isAddingMultipleEpisodes){
             //AddMultipleEpisodesView()
         }
+        .sheet(isPresented: $isEditingMovieSeries){
+            MovieSeriesEditView(movieSeriesData: movieSeriesData, movieSeriesID: $movieSeriesID,isEditingMovieSeries: $isEditingMovieSeries, countdownTimerViewModel: countdownTimerViewModel)
+        }
 
     }
-
+    private func deleteMovieSeries(for title: String){
+        
+    }
+    
     private func loadCoverImage(for title: String) -> UIImage? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(title).png")
