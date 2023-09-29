@@ -60,12 +60,11 @@ struct AddEpisodeView: View {
     }
     private func calculateReleaseDate() {
         let calendar = Calendar.current
-        if let startDate = calendar.date(bySettingHour: 0, minute: 0, second: 0, of: dateManager.msReleaseDate) {
-            let numberOfWeeksToAdd = episodeNumber - 1// Adjust this as needed
-            if let calculatedDate = calendar.date(byAdding: .weekOfYear, value: numberOfWeeksToAdd, to: startDate) {
-                calculatedReleaseDate = calculatedDate
-            }
+        let numberOfWeeksToAdd = episodeNumber - 1// Adjust this as needed
+        if let calculatedDate = calendar.date(byAdding: .weekOfYear, value: numberOfWeeksToAdd, to: dateManager.msReleaseDate) {
+            calculatedReleaseDate = calculatedDate
         }
+        
     }
 
 

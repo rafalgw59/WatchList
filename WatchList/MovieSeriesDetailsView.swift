@@ -7,7 +7,8 @@ struct MovieSeriesDetailsView: View {
     @ObservedObject var viewModel: MovieSeriesDetailsViewModel = MovieSeriesDetailsViewModel(episodes: [])
     @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
     @ObservedObject var episodeViewModel: EpisodeViewModel
-    var movieSeriesData: MovieSeriesData
+    @Binding var showDetailsView: Bool
+    @ObservedObject var movieSeriesData: MovieSeriesData
     @State private var countdownText: String = ""
     @State private var isTimerRunning = false
     @State private var selectedEpisode: Episode?
@@ -22,25 +23,27 @@ struct MovieSeriesDetailsView: View {
     @State private var coverImage: UIImage? = nil
     @State var movieSeriesID: UUID = UUID()
     @State private var isEditingMovieSeries = false
+    @State private var movieSeriesIndex: Int = 0
     @StateObject var dateManager = DateManager()
 
     
     private var selectedEpisodePublisher = PassthroughSubject<Episode?, Never>()
     private var timer: Timer?
 
-    init(movieSeries: MovieSeries, movieSeriesData: MovieSeriesData) {
+    init(movieSeries: MovieSeries, movieSeriesData: MovieSeriesData, showDetailsView: Binding<Bool>) {
+        self._showDetailsView = showDetailsView
         self.movieSeries = movieSeries
         self.movieSeriesData = movieSeriesData
         self.viewModel = MovieSeriesDetailsViewModel(episodes: movieSeries.episodes ?? [])
         self.episodeViewModel = EpisodeViewModel(episodes: movieSeries.episodes ?? [])
         if movieSeries.type == "movie" {
             self.countdownTimerViewModel = CountdownTimerViewModel()
-            if let movieSeriesReleaseDate = movieSeriesData.getReleaseDate(forTitle: movieSeries.title){
+            if let movieSeriesReleaseDate = movieSeriesData.getReleaseDate(byId: movieSeries.id){
                 countdownTimerViewModel.startCountdownTimer(for: movieSeriesReleaseDate, nextEpisodeReleaseDate: nil)
             }
         } else if movieSeries.type == "series" {
             self.countdownTimerViewModel = CountdownTimerViewModel()
-            if let nextEpisodeReleaseDate = movieSeriesData.getNextEpisodeReleaseDate(forTitle: movieSeries.title){
+            if let nextEpisodeReleaseDate = movieSeriesData.getNextEpisodeReleaseDate(byId: movieSeries.id){
                 countdownTimerViewModel.startCountdownTimer(for: nil, nextEpisodeReleaseDate: nextEpisodeReleaseDate)
 
             }
@@ -58,8 +61,8 @@ struct MovieSeriesDetailsView: View {
                 ZStack {
                     
                     //Image(movieSeries.imageFilename)
-                    if !movieSeriesData.getImageFilename(forTitle: movieSeries.title)!.isEmpty {
-                        Image(uiImage: coverImage ?? UIImage())
+                    if !movieSeriesData.getImageFilename(byId: movieSeries.id)!.isEmpty {
+                        Image(uiImage: movieSeriesData.coverImages[movieSeriesIndex] ?? UIImage())
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .opacity(0.8)
@@ -87,7 +90,7 @@ struct MovieSeriesDetailsView: View {
                 
                 
                 
-                if let selectedMovieSeries = movieSeriesData.getTitle(byName: movieSeries.title) {
+                if let selectedMovieSeries = movieSeriesData.getTitle(byId: movieSeries.id) {
                     Text("Type: \(selectedMovieSeries.type)")
                         .font(.subheadline)
                         .padding()
@@ -126,9 +129,9 @@ struct MovieSeriesDetailsView: View {
                                 }
                                 .foregroundColor(.blue)
                                 
-                                Button("Add Multiple Episodes"){
-                                    isAddingMultipleEpisodes = true
-                                }
+//                                Button("Add Multiple Episodes"){
+//                                    isAddingMultipleEpisodes = true
+//                                }
                             }
                         }
                         
@@ -176,6 +179,7 @@ struct MovieSeriesDetailsView: View {
                 }
                 self.movieSeriesID = selectedMovieSeries.id
             }
+            movieSeriesIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.id == movieSeries.id })!
             coverImage = loadCoverImage(for: movieSeries.title)
             dateManager.msReleaseDate = episodes.last?.releaseDate ?? movieSeries.releaseDate
         }
@@ -199,14 +203,41 @@ struct MovieSeriesDetailsView: View {
             //AddMultipleEpisodesView()
         }
         .sheet(isPresented: $isEditingMovieSeries){
-            MovieSeriesEditView(movieSeriesData: movieSeriesData, movieSeriesID: $movieSeriesID,isEditingMovieSeries: $isEditingMovieSeries, countdownTimerViewModel: countdownTimerViewModel)
+            MovieSeriesEditView(movieSeriesData: movieSeriesData, movieSeriesID: $movieSeriesID,isEditingMovieSeries: $isEditingMovieSeries, showDetailsView: $showDetailsView, countdownTimerViewModel: countdownTimerViewModel,MS: movieSeries)
+                .onDisappear{
+                    showDetailsView = false
+                }
         }
 
     }
-    private func deleteMovieSeries(for title: String){
-        
+    private func deleteMovieSeries(for id: UUID){
+        movieSeriesData.movieSeries.removeAll(where: {$0.id == movieSeriesID})
+        deleteMovieSeriesFromPlist(for: movieSeriesID)
     }
-    
+    private func deleteMovieSeriesFromPlist(for id: UUID) {
+        // Assuming "MovieSeries.plist" is your plist file name
+        let plistName = "MovieSeries"
+
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
+
+            // Load the current data from the plist
+            if var movieSeries = loadMovieSeriesData(plistName) {
+                // Remove the MovieSeries with the matching ID
+                movieSeries.removeAll { $0.id == id }
+
+                // Encode and save the updated data back to the plist
+                let encoder = PropertyListEncoder()
+                do {
+                    let data = try encoder.encode(movieSeries)
+                    try data.write(to: fileURL)
+                } catch {
+                    print("Error saving data to \(plistName).plist: \(error)")
+                }
+            }
+        }
+    }
+
     private func loadCoverImage(for title: String) -> UIImage? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(title).png")
@@ -215,6 +246,20 @@ struct MovieSeriesDetailsView: View {
                 return UIImage(data: imageData)
             } catch {
                 print("Error loading cover image: \(error)")
+            }
+        }
+        return nil
+    }
+    private func loadMovieSeriesData(_ plistName: String) -> [MovieSeries]? {
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
+            do {
+                let data = try Data(contentsOf: fileURL)
+                let decoder = PropertyListDecoder()
+                let movieSeries = try decoder.decode([MovieSeries].self, from: data)
+                return movieSeries
+            } catch {
+                print("Error loading data from \(plistName).plist: \(error)")
             }
         }
         return nil

@@ -9,7 +9,7 @@ struct MovieTimerView: View {
     @State private var timer: Timer? = nil
     @State private var nextEpisode: Episode? = nil
     @State private var coverImage: UIImage? = nil
-    
+    @State private var movieSeriesIndex: Int = 0
     var body: some View {
         VStack {
             GeometryReader { geometry in
@@ -22,8 +22,8 @@ struct MovieTimerView: View {
                         .opacity(0.8)
                     // Image as the background
                     
-                    if !movieSeriesData.getImageFilename(forTitle: movieSeries.title)!.isEmpty {
-                        Image(uiImage: coverImage ?? UIImage())
+                    if !movieSeriesData.getImageFilename(byId: movieSeries.id)!.isEmpty {
+                        Image(uiImage: movieSeriesData.coverImages[movieSeriesIndex] ?? UIImage())
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .frame(maxHeight: 200)
@@ -73,6 +73,8 @@ struct MovieTimerView: View {
         .padding(.vertical, 8)
         .listRowInsets(EdgeInsets())
         .onAppear {
+            movieSeriesIndex = movieSeriesData.movieSeries.firstIndex(where: { $0.id == movieSeries.id })!
+
             updateRemainingTime()
             coverImage = loadCoverImage(for: movieSeries.title)
             timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { _ in

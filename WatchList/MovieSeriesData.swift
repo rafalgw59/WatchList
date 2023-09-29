@@ -1,35 +1,35 @@
-
+import SwiftUI
 import Foundation
 import Combine
 
 class MovieSeriesData: ObservableObject {
     @Published var movieSeries: [MovieSeries] = []
-    
+    @Published var coverImages: [UIImage?] = []
     init(){
         if let data = loadMovieSeriesDataFromFile("MovieSeriesData"){
             movieSeries = data
         }
     }
-    func getTitle(byName name: String) -> MovieSeries? {
-        return movieSeries.first { $0.title == name }
+    func getTitle(byId id: UUID) -> MovieSeries? {
+        return movieSeries.first { $0.id == id }
     }
-    func getType(forTitle name: String) -> String? {
-        return getTitle(byName: name)?.type
+    func getType(byId id: UUID) -> String? {
+        return getTitle(byId: id)?.type
     }
-    func getEpisodes(forTitle name: String) -> [Episode]? {
-        return getTitle(byName: name)?.episodes
+    func getEpisodes(byId id: UUID) -> [Episode]? {
+        return getTitle(byId: id)?.episodes
     }
     //release data
-    func getReleaseDate(forTitle name: String) -> Date? {
-        return getTitle(byName: name)?.releaseDate
+    func getReleaseDate(byId id: UUID) -> Date? {
+        return getTitle(byId: id)?.releaseDate
 
     }
     //imagefilename
-    func getImageFilename(forTitle name: String) -> String? {
-        return getTitle(byName: name)?.imageFilename
+    func getImageFilename(byId id: UUID) -> String? {
+        return getTitle(byId: id)?.imageFilename
     }
-    func getNextEpisodeReleaseDate(forTitle name: String) -> Date? {
-        return getTitle(byName: name)?.nextEpisodeReleaseDate
+    func getNextEpisodeReleaseDate(byId id: UUID) -> Date? {
+        return getTitle(byId: id)?.nextEpisodeReleaseDate
     }
     
     private func loadMovieSeriesDataFromFile(_ plistName: String) -> [MovieSeries]? {

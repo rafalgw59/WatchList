@@ -39,6 +39,7 @@
 		2BE6452B2AC30CBE00A1D98C /* AddEpisodeToExistingMovieSeriesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6452A2AC30CBE00A1D98C /* AddEpisodeToExistingMovieSeriesView.swift */; };
 		2BE6452D2AC5B97300A1D98C /* MovieSeriesEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6452C2AC5B97300A1D98C /* MovieSeriesEditView.swift */; };
 		2BE6452F2AC600B300A1D98C /* DateManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2BE6452E2AC600B200A1D98C /* DateManager.swift */; };
+		2BE645312AC60E6A00A1D98C /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 2BE645302AC60E6900A1D98C /* README.md */; };
 		61D99F7C81148DD26BD1B28F /* Pods_WatchList.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 542BBCEC76DCC432CE8375B2 /* Pods_WatchList.framework */; };
 /* End PBXBuildFile section */
 
@@ -77,6 +78,7 @@
 		2BE6452A2AC30CBE00A1D98C /* AddEpisodeToExistingMovieSeriesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddEpisodeToExistingMovieSeriesView.swift; sourceTree = "<group>"; };
 		2BE6452C2AC5B97300A1D98C /* MovieSeriesEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieSeriesEditView.swift; sourceTree = "<group>"; };
 		2BE6452E2AC600B200A1D98C /* DateManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateManager.swift; sourceTree = "<group>"; };
+		2BE645302AC60E6900A1D98C /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = SOURCE_ROOT; };
 		542BBCEC76DCC432CE8375B2 /* Pods_WatchList.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_WatchList.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A0EC29C8FB80BD6124FE8BE4 /* Pods-WatchList.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatchList.release.xcconfig"; path = "Target Support Files/Pods-WatchList/Pods-WatchList.release.xcconfig"; sourceTree = "<group>"; };
 		DBA32767FCC9BCDD0366AFA6 /* Pods-WatchList.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-WatchList.debug.xcconfig"; path = "Target Support Files/Pods-WatchList/Pods-WatchList.debug.xcconfig"; sourceTree = "<group>"; };
@@ -123,6 +125,7 @@
 				2BE6452E2AC600B200A1D98C /* DateManager.swift */,
 				2BE645232ABEF36700A1D98C /* AddEpisodeView.swift */,
 				2BE6452A2AC30CBE00A1D98C /* AddEpisodeToExistingMovieSeriesView.swift */,
+				2BE645302AC60E6900A1D98C /* README.md */,
 				2BC13B392ABDAD5500F90921 /* ImagePicker */,
 				2BC13B272ABB6D9A00F90921 /* CountdownTimerViewModel.swift */,
 				2B75B9DC2AB9F06900865A3F /* MovieSeriesData.plist */,
@@ -247,6 +250,7 @@
 			files = (
 				2B75B9DD2AB9F06900865A3F /* MovieSeriesData.plist in Resources */,
 				2B75B9D02AB9EAF300865A3F /* Preview Assets.xcassets in Resources */,
+				2BE645312AC60E6A00A1D98C /* README.md in Resources */,
 				2B75B9CD2AB9EAF300865A3F /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

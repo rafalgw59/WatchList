@@ -48,18 +48,37 @@ struct ContentView: View {
             .navigationBarTitle("My Movies and Series")
 
             .sheet(item: $selectedMovieSeries){ MovieSeries in
-                MovieSeriesDetailsView(movieSeries: MovieSeries, movieSeriesData: movieSeriesData)
+                MovieSeriesDetailsView(movieSeries: MovieSeries, movieSeriesData: movieSeriesData,showDetailsView: $showDetailsSheet)
 
             }
 
             .onAppear {
                 if let data = loadMovieSeriesDataFromFile("MovieSeriesData") {
                     self.movieSeriesData.movieSeries = data
+                    self.movieSeriesData.coverImages = movieSeriesData.movieSeries.compactMap { ms in
+                        let coverFilename = ms.imageFilename
+                            
+                        return loadCoverImage(for: coverFilename)
+                            
+                       
+                    }
+                    
                 }
             }
         }
     }
-       
+    private func loadCoverImage(for title: String) -> UIImage? {
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
+            let fileURL = documentsDirectory.appendingPathComponent("\(title).png")
+            do {
+                let imageData = try Data(contentsOf: fileURL)
+                return UIImage(data: imageData)
+            } catch {
+                print("Error loading cover image: \(error)")
+            }
+        }
+        return nil
+    }
     
     private func loadMovieSeriesData(_ plistName: String) -> [MovieSeries]? {
         if let path = Bundle.main.path(forResource: plistName, ofType: "plist"),

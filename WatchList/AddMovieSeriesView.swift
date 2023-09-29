@@ -155,7 +155,7 @@ struct AddMovieSeriesView: View {
         newMovieSeries.imageFilename = newMovieSeries.title
         newMovieSeries.id = UUID()
         saveImage(file: newMovieSeries.imageFilename)
-
+        movieSeriesData.coverImages.append(selectedImage)
         var movieSeriesArray = loadMovieSeriesData("MovieSeriesData")
         movieSeriesArray.append(newMovieSeries)
         saveMovieSeriesData(movieSeriesArray, plistName: "MovieSeriesData")
@@ -192,7 +192,6 @@ struct AddMovieSeriesView: View {
         let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
         
         if fileManager.fileExists(atPath: fileURL.path) {
-            // File exists, load data from it
             do {
                 let data = try Data(contentsOf: fileURL)
                 let decoder = PropertyListDecoder()
@@ -203,9 +202,7 @@ struct AddMovieSeriesView: View {
                 return []
             }
         } else {
-            // File does not exist, create and save default data
-            let defaultMovieSeriesData: [MovieSeries] = [] // Replace with your default data
-            
+            let defaultMovieSeriesData: [MovieSeries] = []
             do {
                 let encoder = PropertyListEncoder()
                 let data = try encoder.encode(defaultMovieSeriesData)
