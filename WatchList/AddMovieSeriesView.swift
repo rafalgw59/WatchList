@@ -79,26 +79,28 @@ struct AddMovieSeriesView: View {
                         }
 
                     }
-                    Section(header: Text("Episodes")){
-                        List{
-                            ForEach(episodes){ episode in
-                                Button(action: {
-                                    editingEpisode = episode
-                                    //showAddEpisodeSheet = true
-                                }) {
-                                    VStack(alignment: .leading){
-                                        Text("Episode \(episode.episodeNumber): \(episode.title)")
-                                            .font(.headline)
-                                            .foregroundColor(.primary)
-                                        Text("Release Date: \(formattedDate(episode.releaseDate))")
-                                            .font(.subheadline)
-                                            .foregroundColor(.secondary)
+                    if newMovieSeries.type == "series"{
+                        Section(header: Text("Episodes")){
+                            List{
+                                ForEach(episodes){ episode in
+                                    Button(action: {
+                                        editingEpisode = episode
+                                        //showAddEpisodeSheet = true
+                                    }) {
+                                        VStack(alignment: .leading){
+                                            Text("Episode \(episode.episodeNumber): \(episode.title)")
+                                                .font(.headline)
+                                                .foregroundColor(.primary)
+                                            Text("Release Date: \(formattedDate(episode.releaseDate))")
+                                                .font(.subheadline)
+                                                .foregroundColor(.secondary)
+                                        }
+                                        
                                     }
                                     
                                 }
                                 
                             }
-                            
                         }
                     }
                 }
