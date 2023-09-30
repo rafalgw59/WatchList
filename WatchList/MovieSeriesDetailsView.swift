@@ -73,27 +73,34 @@ struct MovieSeriesDetailsView: View {
                         
                     }
                     
-                    
-                    Text(movieSeries.title)
-                        .font(.title)
-                        .foregroundColor(.white)
-                        .padding(.top, 50)
+                    VStack{
+                        Text(movieSeries.title)
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding(.top, 50)
+                            .shadow(color: .black, radius: 1)
+                        
+                        Text("\(countdownTimerViewModel.countdownText)")
+                            .font(.title)
+                            .foregroundColor(.white)
+                            .padding()
+                            .shadow(color: .black, radius: 1)
+
+                    }
                 }
                 
                 Text("Release Date: \(formattedDate())")
                     .font(.headline)
                     .padding()
                 
-                Text("\(countdownTimerViewModel.countdownText)")
-                    .font(.headline)
-                    .padding()
+
                 
                 
                 
                 if let selectedMovieSeries = movieSeriesData.getTitle(byId: movieSeries.id) {
-                    Text("Type: \(selectedMovieSeries.type)")
-                        .font(.subheadline)
-                        .padding()
+//                    Text("Type: \(selectedMovieSeries.type)")
+//                        .font(.subheadline)
+//                        .padding()
                     
                     if selectedMovieSeries.type == "series" {
                         Divider()
@@ -102,6 +109,7 @@ struct MovieSeriesDetailsView: View {
                         Text("Episodes: \(String(format: "%d", selectedMovieSeries.numberOfEpisodes ?? 0))")
                             .font(.headline)
                             .padding()
+                        Divider()
                         if let episodes = selectedMovieSeries.episodes, !episodes.isEmpty {
                             let sortedEpisodes = episodes.sorted { $0.releaseDate < $1.releaseDate }
                             if sortedEpisodes[0].releaseDate > Date() {

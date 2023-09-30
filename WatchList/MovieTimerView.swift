@@ -46,18 +46,23 @@ struct MovieTimerView: View {
                             .foregroundColor(.white)
                             .font(.title)
                             .padding()
+                            .shadow(color: .black, radius: 1)
+
 
                         Text(formatRemainingTime())
                             .foregroundColor(.white)
                             .font(.headline)
                             .padding()
-                        
+                            .shadow(color: .black, radius: 1)
+
                         if movieSeries.type == "series" {
                             if let episode = movieSeries.nextEpisode {
                                 Text("Next Episode: Episode \(episode.episodeNumber): \(episode.title)")
                                     .foregroundColor(.white)
                                     .font(.subheadline)
                                     .padding()
+                                    .shadow(color: .black, radius: 1)
+
                             }
                         }
                     }

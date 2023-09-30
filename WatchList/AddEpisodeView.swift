@@ -26,16 +26,15 @@ struct AddEpisodeView: View {
                     }
                     //                        .keyboardType(.numberPad) // Allow only numeric input
                     DatePicker("Release Date", selection: $calculatedReleaseDate)
-                    Text("\(calculatedReleaseDate)")
                     
                 }
-                Section(header: Text("Episodes")){
-                    List{
-                        ForEach(episodes) { episode in
-                            Text(episode.title)
-                        }
-                    }
-                }
+//                Section(header: Text("Episodes")){
+//                    List{
+//                        ForEach(episodes) { episode in
+//                            Text(episode.title)
+//                        }
+//                    }
+//                }
             }
             
             .navigationBarItems(
