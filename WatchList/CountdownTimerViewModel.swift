@@ -18,7 +18,7 @@ class CountdownTimerViewModel: ObservableObject {
         self.releaseDate = releaseDate
         self.nextEpisodeReleaseDate = nextEpisodeReleaseDate
         
-        guard let targetDate = releaseDate ?? nextEpisodeReleaseDate else {
+        guard (releaseDate ?? nextEpisodeReleaseDate) != nil else {
             return
         }
         

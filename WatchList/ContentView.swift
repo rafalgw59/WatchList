@@ -7,7 +7,7 @@ struct ContentView: View {
     @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
     @State private var showDetailsSheet = false
 //    @State private var movieSeriesData: [MovieSeries] = []
-    @State private var selectedMovieSeries: MovieSeries? = nil
+    @State private var selectedMovieSeriesID: IdentifiableUUID?
     @State private var showAddMovieSeries = false
 //    @State private var cropperType: ImageCropperType = .normal
 //    @State private var cropShapeType: Mantis.CropShapeType = .rect
@@ -24,7 +24,7 @@ struct ContentView: View {
                     MovieTimerView(movieSeries: movieSeries, movieSeriesData: movieSeriesData)
                         .onTapGesture {
                             showDetailsSheet.toggle()
-                            selectedMovieSeries = movieSeries
+                            selectedMovieSeriesID = IdentifiableUUID(id: movieSeries.id)
                             showDetailsSheet = true
                         }
                 }
@@ -47,8 +47,8 @@ struct ContentView: View {
             }
             .navigationBarTitle("My Movies and Series")
 
-            .sheet(item: $selectedMovieSeries){ MovieSeries in
-                MovieSeriesDetailsView(movieSeries: MovieSeries, movieSeriesData: movieSeriesData,showDetailsView: $showDetailsSheet)
+            .sheet(item: $selectedMovieSeriesID){ identifiableUUID in
+                MovieSeriesDetailsView(movieSeriesID: identifiableUUID.id, movieSeriesData: movieSeriesData,showDetailsView: $showDetailsSheet)
 
             }
 
@@ -109,6 +109,10 @@ struct ContentView: View {
         }
         return nil
     }
+}
+
+struct IdentifiableUUID: Identifiable {
+    var id: UUID
 }
 
 

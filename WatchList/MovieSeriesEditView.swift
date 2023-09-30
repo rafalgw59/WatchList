@@ -5,7 +5,7 @@ import Mantis
 struct MovieSeriesEditView: View {
     
     @ObservedObject var movieSeriesData: MovieSeriesData
-    @Binding var movieSeriesID: UUID
+    var movieSeriesID: UUID
     @Binding var isEditingMovieSeries: Bool
     @Binding var showDetailsView: Bool
     @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
@@ -14,7 +14,7 @@ struct MovieSeriesEditView: View {
     @State private var showCropScreen = false
     @State private var oldImageName: String =  ""
     @State private var oldImage: UIImage?
-    var MS: MovieSeries
+    //var MS: MovieSeries
     var body: some View {
         NavigationView{
             GeometryReader{ geometry in
@@ -69,8 +69,6 @@ struct MovieSeriesEditView: View {
                 }
                 ToolbarItemGroup(placement: ToolbarItemPlacement.navigationBarTrailing){
                     Button(action: {
-                        print(oldImage)
-                        print(movieSeriesData.coverImages[movieSeriesIndex])
                         saveChanges()
                         isEditingMovieSeries = false
                         showDetailsView = false

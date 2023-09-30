@@ -1,7 +1,7 @@
 
 import Foundation
 
-struct MovieSeries: Identifiable, Codable {
+struct MovieSeries: Identifiable, Codable{
     var title: String
     var releaseDate: Date
     var type: String

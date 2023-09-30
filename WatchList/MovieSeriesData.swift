@@ -32,6 +32,7 @@ class MovieSeriesData: ObservableObject {
         return getTitle(byId: id)?.nextEpisodeReleaseDate
     }
     
+    
     private func loadMovieSeriesDataFromFile(_ plistName: String) -> [MovieSeries]? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
