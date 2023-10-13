@@ -1,5 +1,5 @@
 # WatchList
-Simple application to manage upcoming releases and track currently watched movies or series
+Application to manage upcoming releases and track currently watched movies or series
 
 <ul>
 <li>Created for fun!</li>
