@@ -32,6 +32,13 @@ class MovieSeriesData: ObservableObject {
         return getTitle(byId: id)?.nextEpisodeReleaseDate
     }
     
+    func deleteSeries(byId id: UUID){
+        let msIndex = movieSeries.firstIndex(where: {$0.id==id})
+
+        movieSeries.removeAll {$0.id == id}
+        coverImages.remove(at: msIndex!)
+        
+    }
     
     private func loadMovieSeriesDataFromFile(_ plistName: String) -> [MovieSeries]? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {

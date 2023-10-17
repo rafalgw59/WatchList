@@ -5,7 +5,7 @@ import Mantis
 struct ContentView: View {
     @ObservedObject var movieSeriesData: MovieSeriesData
     @ObservedObject var countdownTimerViewModel: CountdownTimerViewModel = CountdownTimerViewModel.shared
-    @State private var showDetailsSheet = false
+    @State private var showDetailsSheet: Bool = false
 //    @State private var movieSeriesData: [MovieSeries] = []
     @State private var selectedMovieSeriesID: IdentifiableUUID?
     @State private var showAddMovieSeries = false
@@ -23,7 +23,7 @@ struct ContentView: View {
                 List(movieSeriesData.movieSeries, id: \.id) { movieSeries in
                     MovieTimerView(movieSeries: movieSeries, movieSeriesData: movieSeriesData)
                         .onTapGesture {
-                            showDetailsSheet.toggle()
+                            //showDetailsSheet.toggle()
                             selectedMovieSeriesID = IdentifiableUUID(id: movieSeries.id)
                             showDetailsSheet = true
                         }
@@ -48,9 +48,16 @@ struct ContentView: View {
             .navigationBarTitle("My Movies and Series")
 
             .sheet(item: $selectedMovieSeriesID){ identifiableUUID in
-                MovieSeriesDetailsView(movieSeriesID: identifiableUUID.id, movieSeriesData: movieSeriesData,showDetailsView: $showDetailsSheet)
+                MovieSeriesDetailsView(movieSeriesID: identifiableUUID.id, movieSeriesData: movieSeriesData,showDetailsView: $showDetailsSheet,selectedMovieSeriesID: $selectedMovieSeriesID)
 
             }
+//            .sheet(isPresented: $showDetailsSheet){
+//                if let id = selectedMovieSeriesID {
+//                    MovieSeriesDetailsView(movieSeriesID: id.id, movieSeriesData: movieSeriesData, showDetailsView: $showDetailsSheet)
+//                } else {
+//                    EmptyView()
+//                }
+//            }
 
             .onAppear {
                 if let data = loadMovieSeriesDataFromFile("MovieSeriesData") {

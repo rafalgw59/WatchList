@@ -22,7 +22,7 @@ struct MovieTimerView: View {
                         .opacity(0.8)
                     // Image as the background
                     
-                    if !movieSeriesData.getImageFilename(byId: movieSeries.id)!.isEmpty {
+                    if let imageFilename = movieSeriesData.getImageFilename(byId: movieSeries.id), !imageFilename.isEmpty {
                         Image(uiImage: movieSeriesData.coverImages[movieSeriesIndex] ?? UIImage())
                             .resizable()
                             .aspectRatio(contentMode: .fit)

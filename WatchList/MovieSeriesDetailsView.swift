@@ -9,6 +9,7 @@ struct MovieSeriesDetailsView: View {
     //@ObservedObject var episodeViewModel: EpisodeViewModel
     @Binding var showDetailsView: Bool
     @ObservedObject var movieSeriesData: MovieSeriesData
+    @Binding var selectedMovieSeriesID: IdentifiableUUID?
     @State private var countdownText: String = ""
     @State private var isTimerRunning = false
     @State private var selectedEpisode: Episode?
@@ -25,15 +26,15 @@ struct MovieSeriesDetailsView: View {
     @State private var isEditingMovieSeries = false
     @State private var movieSeriesIndex: Int = 0
     @StateObject var dateManager = DateManager()
-
+    @Environment (\.dismiss) var dismiss
     
     private var selectedEpisodePublisher = PassthroughSubject<Episode?, Never>()
     private var timer: Timer?
 
-    init(movieSeriesID: UUID, movieSeriesData: MovieSeriesData, showDetailsView: Binding<Bool>) {
+    init(movieSeriesID: UUID, movieSeriesData: MovieSeriesData, showDetailsView: Binding<Bool>,selectedMovieSeriesID: Binding<IdentifiableUUID?>) {
         self._showDetailsView = showDetailsView
         self.movieSeriesData = movieSeriesData
-
+        self._selectedMovieSeriesID = selectedMovieSeriesID
         
         self.viewModel = MovieSeriesDetailsViewModel(episodes: [])
         self.countdownTimerViewModel = CountdownTimerViewModel.shared
@@ -69,7 +70,7 @@ struct MovieSeriesDetailsView: View {
                 ZStack {
                     
                     //Image(movieSeries.imageFilename)
-                    if !movieSeriesData.getImageFilename(byId: movieSeriesID)!.isEmpty {
+                    if let imageFilename = movieSeriesData.getImageFilename(byId: movieSeriesID), !imageFilename.isEmpty {
                         Image(uiImage: movieSeriesData.coverImages[movieSeriesIndex] ?? UIImage())
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -171,8 +172,14 @@ struct MovieSeriesDetailsView: View {
                 }
                 ToolbarItemGroup(placement: ToolbarItemPlacement.navigationBarTrailing){
                     Button(action: {  
-                        showDetailsView = false
-                        deleteMovieSeries(for: movieSeriesID)
+//                        DispatchQueue.main.async{
+//                            self.showDetailsView.toggle()
+//                        }
+                        selectedMovieSeriesID = nil
+                        DispatchQueue.main.asyncAfter(deadline:.now()+0.5){
+                            deleteMovieSeries(for: movieSeriesID)
+                        }
+
                     }) {
                         Image(systemName: "trash")
                             .imageScale(.large)
@@ -221,20 +228,21 @@ struct MovieSeriesDetailsView: View {
         }
         .sheet(isPresented: $isEditingMovieSeries){
             MovieSeriesEditView(movieSeriesData: movieSeriesData, movieSeriesID: movieSeriesID,isEditingMovieSeries: $isEditingMovieSeries, showDetailsView: $showDetailsView, countdownTimerViewModel: countdownTimerViewModel)
-                .onDisappear{
-                    showDetailsView = false
-                }
+
         }
 
     }
     private func deleteMovieSeries(for id: UUID){
-    
-        movieSeriesData.movieSeries.remove(at: movieSeriesIndex)
-        movieSeriesData.coverImages.remove(at: movieSeriesIndex)
+        let title = movieSeriesData.getTitle(byId: id)?.title
+        movieSeriesData.deleteSeries(byId: id)
         deleteMovieSeriesFromPlist(for: id)
+        deleteCoverImage(for: title!)
+        showDetailsView = false
+        //selectedMovieSeriesID = nil
+        dismiss()
     }
     private func deleteMovieSeriesFromPlist(for id: UUID) {
-        let plistName = "MovieSeries"
+        let plistName = "MovieSeriesData"
 
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
@@ -252,7 +260,17 @@ struct MovieSeriesDetailsView: View {
             }
         }
     }
-
+    private func deleteCoverImage(for title: String){
+        let fileManager = FileManager.default
+        if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first{
+            let fileURL = documentsDirectory.appendingPathComponent("\(title).png")
+            do{
+                try fileManager.removeItem(at: fileURL)
+            } catch {
+                print("Error deleting the image: \(error)")
+            }
+        }
+    }
     private func loadCoverImage(for title: String) -> UIImage? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(title).png")
@@ -265,6 +283,7 @@ struct MovieSeriesDetailsView: View {
         }
         return nil
     }
+
     private func loadMovieSeriesData(_ plistName: String) -> [MovieSeries]? {
         if let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first {
             let fileURL = documentsDirectory.appendingPathComponent("\(plistName).plist")
@@ -287,8 +306,11 @@ struct MovieSeriesDetailsView: View {
         if let date = date {
             return formatter.string(from: date)
         }
-
-        return formatter.string(from: movieSeriesData.getReleaseDate(byId: movieSeriesID)!)
+        if let releaseDate = movieSeriesData.getReleaseDate(byId: movieSeriesID){
+            return formatter.string(from: releaseDate)
+        }else{
+            return "Not Found"
+        }
     }
 
     private func startCountdownTimer() {
